@@ -7,7 +7,7 @@ COLORS = {
     "GREEN": "#0f0",
     "YELLOW": "#FFFC33",
     "BLUE": "#058FAB",
-    "GRAY": "#343434",
+    "GRAY": "#E26B0A",
     "WHITE": "#fff"
 }
 
@@ -19,23 +19,23 @@ addSpaceString = function (string, spaces)
 end function
 
 viperCoolText = "
-<color=#343434>##################################################</color>
-<color=#343434>#                                                #</color>
-<color=#343434>#</color>        <color=#c3201f>        @@@@@@      @@@@@@              </color><color=#343434>#</color>
-<color=#343434>#</color>        <color=#c3201f>            @@!    @@!  @@@             </color><color=#343434>#</color>
-<color=#343434>#</color>        <color=#c3201f>         @!!!:     @!@  !@!             </color><color=#343434>#</color>
-<color=#343434>#</color>        <color=#c3201f>            !!:    !!:  !!!             </color><color=#343434>#</color>
-<color=#343434>#</color>        <color=#c3201f>        ::: ::  ::  : : ::              </color><color=#343434>#</color>
-<color=#343434>#                                                #</color>
-<color=#343434>#</color>      <color=#c3201f>____   ____.__                            </color><color=#343434>#</color>
-<color=#343434>#</color>      <color=#c3201f>\   \ /   /|__|_____   ___________        </color><color=#343434>#</color>
-<color=#343434>#</color>      <color=#c3201f> \   Y   / |  \____ \_/ __ \_  __ \       </color><color=#343434>#</color>
-<color=#343434>#</color>      <color=#c3201f>  \     /  |  |  |_> >  ___/|  | \/       </color><color=#343434>#</color>
-<color=#343434>#</color>      <color=#c3201f>   \___/   |__|   __/ \___  >__|          </color><color=#343434>#</color>
-<color=#343434>#</color>      <color=#c3201f>              |__|        \/              </color><color=#343434>#</color>
-<color=#343434>#                                                #</color>
-<color=#343434>#</color> <color=#fff>Created by: <s>Volk</s> SkidMall</color>                      <color=#343434>#</color>
-<color=#343434>##################################################</color>"
+<color=#E26B0A>##################################################</color>
+<color=#E26B0A>#                                                #</color>
+<color=#E26B0A>#</color>        <color=#c3201f>        @@@@@@      @@@@@@              </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>        <color=#c3201f>            @@!    @@!  @@@             </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>        <color=#c3201f>         @!!!:     @!@  !@!             </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>        <color=#c3201f>            !!:    !!:  !!!             </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>        <color=#c3201f>        ::: ::  ::  : : ::              </color><color=#E26B0A>#</color>
+<color=#E26B0A>#                                                #</color>
+<color=#E26B0A>#</color>      <color=#c3201f>____   ____.__                            </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>      <color=#c3201f>\   \ /   /|__|_____   ___________        </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>      <color=#c3201f> \   Y   / |  \____ \_/ __ \_  __ \       </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>      <color=#c3201f>  \     /  |  |  |_> >  ___/|  | \/       </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>      <color=#c3201f>   \___/   |__|   __/ \___  >__|          </color><color=#E26B0A>#</color>
+<color=#E26B0A>#</color>      <color=#c3201f>              |__|        \/              </color><color=#E26B0A>#</color>
+<color=#E26B0A>#                                                #</color>
+<color=#E26B0A>#</color> <color=#fff>Created by: <s>Volk</s> <s>SkidMall</s> Edited By<b><color=#8300E1> Ch4b0x</b></color></color>    <color=#E26B0A>#</color>
+<color=#E26B0A>##################################################</color>"
 
 ViperUi = {}
 ViperUi.singleton = null
@@ -428,13 +428,20 @@ ViperUi.displaySession = function(session)
     ip = session.data.ip
     name = "file"
     if handler.type != "file" then name = handler.name
-    result = "<color=" + COLORS.GRAY + "><pos=4.95>———(" + handler.user + "@" + "<color=" + COLORS.RED + ">" + name + "</color>" + ")——[" + "<color=" + COLORS.RED + ">" + ip.public + "</color>" + "]——[" + ip.local + "]——[" + "<color=" + COLORS.RED + ">" + handler.path + "</color>" + "]——[" + "<color=" + COLORS.GREEN + ">" + handler.type + "</color>" + "]<voffset=-0.35em><pos=0><rotate=90>—<pos=0><voffset=-0.7em>—<pos=0><voffset=-1.05em>—<rotate=0><pos=4.95><voffset=-1.4em>——<#c3201f>$</color></color> "
+    computerName = ("<color=#8E0284>"+handler.user+"</color>")
+    if (handler.user == "root")then computerName = "<color=#00D80B>root</color>"
+    if (handler.user == "guest")then computerName = "<color=#001FB8>guest</color>"
+    handlerType = handler.type
+    if(handlerType == "shell")then handlerType = "<color=#00D80B>SHELL</color>" //shell colour to set
+    if(handlerType == "computer")then handlerType = "<color=#B800D8>COMPUTER</color>" //computer colour to set 
+    if(handlerType == "file")then handlerType = "<color=#1A0CE2>FILE</color>" //file colour
+    result = "<color=" + COLORS.GRAY + "><pos=4.95>———(" + computerName + "@" + "<color=" + COLORS.RED + ">" + name + "</color>" + ")——[" + "<color=" + COLORS.RED + ">" + ip.public + "</color>" + "]——[" + ip.local + "]——[" + "<color=" + COLORS.RED + ">" + handler.path + "</color>" + "]——["  + handlerType  + "]<voffset=-0.35em><pos=0><rotate=90>—<pos=0><voffset=-0.7em>—<pos=0><voffset=-1.05em>—<rotate=0><pos=4.95><voffset=-1.4em>——<#c3201f>$</color></color> "
     return result
 end function
 ViperUi.init = function ()
     print(viperCoolText)
     print()
-    print "<color=" + COLORS.GRAY + ">" + "<color=" + COLORS.RED + ">" + "Version" + "</color>" + ": " + "<color=" + COLORS.GREEN + ">" + "3.1.7" + "</color>" + "</color>"
+    print "<color=" + COLORS.GRAY + ">" + "<color=" + COLORS.RED + ">" + "Version" + "</color>" + ": " + "<color=" + COLORS.GREEN + ">" + "3.2.5" + "</color>" + "</color>"
     print()
 end function
 ViperUi.displayTable = function (keys, items)

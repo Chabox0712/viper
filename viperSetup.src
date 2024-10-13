@@ -1,0 +1,85 @@
+if(active_user != "root")then exit("Access denied")
+
+computer = get_shell.host_computer
+
+computer.create_folder("/", "viper")
+
+computer.create_folder("/viper", "facades")
+
+computer.create_folder("/viper/facades", "computer-objects")
+computer.touch("/viper/facades/computer-objects", "computer-object-factory.src")
+computer.touch("/viper/facades/computer-objects", "computer.src")
+computer.touch("/viper/facades/computer-objects", "file.src")
+computer.touch("/viper/facades/computer-objects", "shell.src")
+
+computer.create_folder("/viper/facades", "lib-objects")
+computer.touch("/viper/facades/lib-objects", "crypto.src")
+computer.touch("/viper/facades/lib-objects", "metaxploit.src")
+
+computer.create_folder("/viper/facades", "network")
+computer.touch("/viper/facades/network", "router.src")
+
+computer.create_folder("/viper", "jumpfile")
+computer.touch("/viper/jumpfile", "jumpfile-text.src")
+
+computer.create_folder("/viper", "libs")
+computer.touch("/viper/libs", "error.src")
+computer.touch("/viper/libs", "functional.src")
+computer.touch("/viper/libs", "json.src")
+computer.touch("/viper/libs", "ssv.src")
+
+computer.create_folder("/viper", "managers")
+
+computer.create_folder("/viper/managers", "command")
+computer.touch("/viper/managers/command", "command-manager.src")
+computer.touch("/viper/managers/command", "command.src")
+
+computer.create_folder("/viper/managers", "config")
+computer.touch("/viper/managers/config", "config-manager.src")
+
+computer.create_folder("/viper/managers", "dictionary")
+computer.touch("/viper/managers/dictionary", "dictionary-manager.src")
+computer.touch("/viper/managers/dictionary", "list-1.src")
+computer.touch("/viper/managers/dictionary", "list-2.src")
+computer.touch("/viper/managers/dictionary", "list-3.src")
+computer.touch("/viper/managers/dictionary", "list-4.src")
+computer.touch("/viper/managers/dictionary", "list-5.src")
+computer.touch("/viper/managers/dictionary", "list-6.src")
+
+computer.create_folder("/viper/managers", "lib")
+computer.touch("/viper/managers/lib", "lib-manager.src")
+computer.touch("/viper/managers/lib", "metaxploit-manager.src")
+
+computer.create_folder("/viper/managers", "macro")
+computer.touch("/viper/managers/macro", "macro-manager.src")
+
+computer.create_folder("/viper/managers", "session")
+computer.touch("/viper/managers/session", "computer.src")
+computer.touch("/viper/managers/session", "file.src")
+computer.touch("/viper/managers/session", "session-manager.src")
+computer.touch("/viper/managers/session", "session.src")
+computer.touch("/viper/managers/session", "shell.src")
+
+computer.create_folder("/viper/managers", "theme")
+computer.touch("/viper/managers/theme", "theme-manager.src")
+
+computer.create_folder("/viper/managers", "ui")
+computer.touch("/viper/managers/ui", "viper-ui.src")
+
+computer.create_folder("/viper", "utils")
+computer.touch("/viper/utils", "climbFileToRoot.src")
+computer.touch("/viper/utils", "getUserFromHandler.src")
+computer.touch("/viper/utils", "random-ip.src")
+computer.touch("/viper/utils", "string.src")
+
+computer.touch("/viper", "commands.src")
+computer.touch("/viper", "installer0.src")
+computer.touch("/viper", "installer1.src")
+computer.touch("/viper", "installer2.src")
+computer.touch("/viper", "installer3.src")
+computer.touch("/viper", "installer4.src")
+computer.touch("/viper", "installer5.src")
+computer.touch("/viper", "main.src")
+computer.touch("/viper", "mediator.src")
+
+print("Done.")

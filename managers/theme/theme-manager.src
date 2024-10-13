@@ -21,7 +21,7 @@ ThemeManager.mediator = null
 ThemeManager.colors = {
     "highlight": "#c3201f",
     "text": "#fff",
-    "secondary": "#343434",
+    "secondary": "#E26B0A",
     "warning": "#fffc33",
     "info": "#058fab",
     "success": "#0f0",

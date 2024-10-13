@@ -3,6 +3,259 @@ import_code("./utils/random-ip.src")
 import_code("./managers/command/command.src")
 import_code("./managers/session/session.src")
 
+libs = {}
+libs.corruptLog = function(fileObject) //overwrite system.log by copy the smallest file to that dir
+    while fileObject.parent
+        fileObject = fileObject.parent
+    end while
+    files = self.allFiles(fileObject, 3)
+    toCopy = null
+    for file in files
+        if file.is_folder or (not file.has_permission("r")) then continue
+        if not toCopy then toCopy = file
+        if val(file.size) < val(toCopy.size) then toCopy = file
+    end for
+    if not toCopy then return print("No file to overwrite log! try using ""touch"".")
+    logFile = self.getFile("/var/system.log", fileObject)
+    if not logFile then print("log file not found!")
+    tryDelete = logFile.delete
+    if tryDelete == "" then print("Log file deleted.") else return print("Error: " + tryDelete)
+    tryCopy = toCopy.copy("/var", "system.log")
+    if tryCopy == true then return true
+    return print(tryCopy)
+end function
+libs.getFile = function(toPath, fileObject) //changeDir only support folder but this works for both
+    if not fileObject then fileObject = globals.current.folder
+    while fileObject.parent
+        fileObject = fileObject.parent
+    end while
+    if toPath.len == 0 then return print("File not found.")
+    while (toPath.len > 1) and (toPath[-1] == "/") //trim end "/"
+        toPath = toPath[:-1]
+    end while
+    while (toPath.len > 1) and (toPath[0] == "/") //trim start "/"
+        toPath = toPath[1:]
+    end while
+    if toPath == "/" then return fileObject
+    toPath = toPath.split("/")
+    for i in toPath.indexes
+        found = false
+        if i == (toPath.len - 1) then
+            for f in fileObject.get_folders + fileObject.get_files
+                if not f.name == toPath[i] then continue
+                return f
+            end for
+            return print("File not found")
+        end if
+        for f in fileObject.get_folders
+            if not f.name == toPath[i] then continue
+            found = true
+            fileObject = f
+            break
+        end for
+        if not found then return print("File not found.")
+    end for
+    return fileObject
+end function
+libs.allFiles = function(fileObject, maxDepth = -1)//find all files in a computer usinf fileObject (fileObject)
+    fileObject = libs.toFile(fileObject)
+    if fileObject.is_folder then total = {"ret":[fileObject], "stack":[maxDepth, fileObject]} else return [fileObject]
+    while total.stack
+        c = {"folder":total.stack.pop, "maxDepth":total.stack.pop}
+        if c.maxDepth then total.ret = total.ret + c.folder.get_folders + c.folder.get_files else continue
+        folders = c.folder.get_folders
+        for i in range(len(folders) - 1)
+            if folders then [total.stack.push(c.maxDepth - 1), total.stack.push(folders[i])] else break
+        end for
+    end while
+    return total.ret
+end function
+libs.typeofFile = function(fileObject)//return file type "txt" "fld" "bin" else "null"
+    if not typeof(fileObject) == "file" then return null
+    if fileObject.is_folder then return "fld"
+    if fileObject.is_binary then return "bin"
+    return "txt"
+end function
+libs.toFile = function(anyObject)//converts any Object to "Parent fileType object" ("/")
+    if typeof(anyObject) == "shell" then return anyObject.host_computer.File("/")
+    if typeof(anyObject) == "computer" then return anyObject.File("/")
+    if typeof(anyObject) == "file" then
+        while anyObject.parent
+            anyObject = anyObject.parent
+        end while
+        return anyObject
+    end if
+    return anyObject
+end function
+libs.fileSize = function(bytes) //translate byte to kb and mb
+    bytes = bytes.to_int
+    i = 0
+    units = ["B","KB","MB","GB","TB","PT"]
+    while bytes > 1024
+        bytes = bytes / 1024
+        i = i + 1
+    end while
+    return round(bytes, 2) + units[i]
+end function
+libs.checkPermission = function(file)
+    permissions = ["-", "-", "-"]
+    if file.has_permission("r") then
+        permissions[0] = "r"
+    end if
+    if file.has_permission("w") then
+        permissions[1] = "w"
+    end if
+    if file.has_permission("x") then
+        permissions[2] = "x"
+    end if
+    return permissions.join("")
+end function
+libs.find = function(fileName, fileObject) //find files under a dir
+    founded = []
+    files = libs.allFiles(fileObject)
+    for file in files
+        if lower(file.name).indexOf(lower(fileName)) != null then founded = founded + [file]
+    end for
+    return founded
+end function
+
+findfileCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    fileObject = handler.current.file
+    fileName = params.filename
+    foundFiles = libs.find(fileName,fileObject)
+    output = "TYPE +WRX PATH PERMISSIONS SIZE"
+    if not foundFiles then return print("No filenames found.")
+    for file in foundFiles
+        output = output + "\n" + libs.typeofFile(file) + " " + libs.checkPermission(file) + " " + file.path + " " + file.permissions + " " + libs.fileSize(file.size)
+    end for
+    return print(format_columns(output))
+end function
+commandManager.registerCommand(Command.New({
+    "name": "findfile",
+    "description": "Search for file by its name",
+    "parameters": [
+        Parameter.New({
+        "name": "filename",
+        "required": true
+    })],
+    "callback": @findfileCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+vulnCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    fileObject = handler.current.file
+    allFiles = libs.allFiles(fileObject)
+    perm = params.permission
+    output = "TYPE PATH FILE_PERM USER_PERM SIZE"
+    for file in allFiles
+        if(perm == "x")then
+            if(libs.typeofFile(file)!= "bin")then continue
+        end if
+        if(perm == "r")then
+            if(libs.typeofFile(file)!= "txt")then continue
+        end if
+        if(not file.has_permission(perm))then continue
+        userPermission = libs.checkPermission(file)
+        output = output+ "\n" + libs.typeofFile(file) + " " + file.path + " " + file.permissions + " " + userPermission + " " + libs.fileSize(file.size)
+    end for
+    return print(format_columns(output))
+end function
+commandManager.registerCommand(Command.New({
+    "name": "vuln",
+    "description": "Get vulnerable File / Folder Permissions. params [r] [x] [w]",
+    "parameters": [
+        Parameter.New({
+        "name": "permission",
+        "required": false,
+        "default": "r"
+    })],
+    "callback": @vulnCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
+hashdumpCommandHandler = function(params,extensionMediator)
+    nametoFind = ["Mail.txt","Bank.txt","passwd"]//target file scope
+    libMannager = extensionMediator.getExtension("libManager")
+    lib = libMannager.getCurrentLib("crypto")
+    if lib == null then return Error.New("No crypto library loaded")
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    fileName = params.fileName
+    rootOnly = false
+    if(fileName=="mail")then 
+        fileName = "Mail.txt"
+    else if(fileName=="bank")then
+        fileName = "Bank.txt"
+    else if(fileName=="passwd")then
+        fileName = "passwd"
+    else if(fileName=="root")then
+        fileName = "passwd"
+        rootOnly = true
+    end if
+    found = false
+    anyfileFound = false
+    foundFiles = "PATH PERMISSIONS"
+    fileObject = handler.current.file
+    allFiles = libs.allFiles(fileObject,9)
+    output = "PATH USERNAME PASSWORD PERMISSIONS"
+    for file in allFiles
+        if(not libs.typeofFile(file) == "txt") then continue
+        for f in nametoFind
+            if(not fileName == "all")then
+                if(not f == fileName)then continue
+            end if
+            if(not file.name == f) then continue                               //check file in target scope
+            anyfileFound = true      
+            foundFiles = foundFiles+"\n"+file.path+" "+file.permissions
+            if(not file.has_permission("r")) then continue
+            if(rootOnly==true)then
+                fileList = file.get_content.split("\n")[0]
+                userName = fileList.split(":")[0]
+                hash = fileList.split(":")[1]
+                password = lib.lib.decipher(hash)
+                output = output +"\n"+ file.path + " " + userName + " " + password + " " + file.permissions
+                found = true
+                return print(format_columns(output))
+            else
+                fileList = file.get_content.split("\n")
+            end if
+            for hashList in fileList
+                if hashList == "" then continue
+                userName = hashList.split(":")[0]
+                hash = hashList.split(":")[1]
+                password = lib.lib.decipher(hash)
+                output = output +"\n"+ file.path + " " + userName + " " + password + " " + file.permissions
+                found = true
+            end for
+        end for
+    end for
+    if(found == true)then return print(format_columns(output))
+    if(anyfileFound == false)then return print("No file found on the system.")
+    return print("Permission denied.\n"+format_columns(foundFiles))
+end function
+commandManager.registerCommand(Command.New({
+    "name": "hashdump",
+    "description": "Get all passwords in the computer. fileName [mail] [bank] [root] [passwd] [all (default)]",
+    "parameters": [
+        Parameter.New({
+            "name": "fileName",
+            "required": false,
+            "default": "all"
+        })
+    ],
+    "callback": @hashdumpCommandHandler
+}))
+
 lsCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
     sessionManager = extensionMediator.getExtension("sessionManager")
@@ -241,24 +494,32 @@ corruptLogsCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
     handler = session.handler
-
-    if handler.type() == "file" then return Error.New("Handler is not a shell or computer")
-    if handler.user != "root" then return Error.New("You must be root to corrupt the logs")
-
+    file = handler.current.file
+    if(handler.type == "file") then
+        loglibFile = libs.getFile("/var/system.log",file)
+        corruptLogs = libs.corruptLog(loglibFile)
+        if(corruptLogs==true)then
+            return print("Done.")
+        else
+            return print("Failed.")
+        end if
+    end if
     logFile = handler.getFile("/var/system.log")
     if logFile isa Error then return Error.New("Failed to get log file")
     handler.createFile("/var/t")
+    tFile = handler.getFile("/var/t")
+    if tFile isa Error then return Error.New("Failed to verify. Check permissions")
     handler.move("/var/t", "/var/system.log")
     return "Corrupted logs"
 end function
 commandManager.registerCommand(Command.New({
     "name": "corruptlogs",
-    "description": "Corrupt the logs",
+    "description": "Corrupt the logs (best with root access)try your luck.",
     "parameters": [],
     "callback": @corruptLogsCommandHandler,
     "permissions": {
-        "object": "computer",
-        "privilege": "root"
+        "object": "file",
+        "privilege": "guest"
     }
 }))
 
@@ -475,9 +736,19 @@ sshCommandHandler = function(params, extensionMediator)
     port = params.port
     service = params.service
 
-    result = handler.connectTo(ip, port, username, password, service)
+    if password == "dict" then
+        dictionaryManager = extensionMediator.getExtension("dictionaryManager")
+        print "Trying dictionary attack"
+        password = dictionaryManager.get()
+        while not password isa Error 
+            result = handler.connectTo(ip, port, username, password, service)
+            if not result isa Error then break
+            password = dictionaryManager.get()
+        end while
+    else
+        result = handler.connectTo(ip, port, username, password, service)
+    end if
     if result isa Error then return result
-
     session = sessionManager.addSession(result, {})
     sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
 end function
@@ -491,11 +762,16 @@ commandManager.registerCommand(Command.New({
         }),
         Parameter.New({
             "name": "username",
-            "required": true
+            "required": false,
+            "default": "root"
         }),
         Parameter.New({
             "name": "password",
-            "required": true
+            "required": false,
+            "options": {
+                "dict": "dict",
+            },
+            "default": "dict"
         }),
         Parameter.New({
             "name": "port",
@@ -772,9 +1048,9 @@ addLibCommandHandler = function(params, extensionMediator)
     if jumpfileLocation == null then
         pivotSession = sessionManager.pivotSession
         pivotHandler = pivotSession.handler
-
+       
         lib = include_lib(file.path())
-        if lib == null then return Error.New("Failed to include library")
+        if lib == null then return Error.New("Failed to include library. "+lib)
         libManager.addLib(lib, { "path": file.path(), "ip": pivotHandler.ip })
     else
         jumpFile = handler.getFile(jumpfileLocation)
@@ -956,6 +1232,15 @@ commandManager.registerCommand(Command.New({
         "object": "shell"
     }
 }))
+clsCommandHandler = function(params, extensionMediator)
+    return clear_screen
+end function
+commandManager.registerCommand(Command.New({
+    "name": "cls",
+    "description": "Clear the screen without banner.",
+    "parameters": [],
+    "callback": @clsCommandHandler
+}))
 
 clearCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
@@ -1065,25 +1350,22 @@ nukeCommandHandler = function(params, extensionMediator)
     currentSession = sessionManager.currentSession
     currentHandler = currentSession.handler
 
-    handleFilter = function (session)
-        if session.data.ip == currentSession.data.ip then return true
-        return false
-    end function
-    sessions = filter(sessionManager.sessions, @handleFilter)
-
-    currentHandler.delete("/")
-    
-    for session in sessions
-        session.handler.goTo("/")
+    fileObject = currentHandler.current.file
+    allFiles = libs.allFiles(fileObject)
+    for file in allFiles
+        if(not file.has_permission("w"))then continue
+        file.delete
+        print(file.path+" deleted.")
     end for
+
 end function
 commandManager.registerCommand(Command.New({
     "name": "nuke",
-    "description": "Delete all files",
+    "description": "Delete all files using any Object (best with root access)",
     "parameters": [],
     "callback": @nukeCommandHandler,
     "permissions": {
-        "privilege": "root"
+        "privilege": "guest"
     }
 }))
 
