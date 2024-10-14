@@ -1,4 +1,4 @@
-# Viper v3.0
+# Viper v3.2.5
 
 ## What is This Project?
 
@@ -18,21 +18,23 @@ You can build this project from source or download the pre-built binaries from t
 
 1. Clone the repository to your local machine using Git:
    ```
-   git clone https://github.com/cantemizyurek/viper-3.0.git
+   git clone https://github.com/Chabox0712/viper.git
    ```
 2. Open the cloned project in Visual Studio Code to set up your workspace.
 3. Download Greybel VS extension from Visual Studio Code Marketplace.
 
 #### Compiling the Code
-
-1. Navigate to the `main.gs` file within VS Code.
-2. Right-click on `main.gs` and select the `Build` option from the context menu. Successful compilation will create a new `build` directory in your project.
-3. To deploy the tool in Grey Hack, copy the `installerX.src` files from the `build` folder into the game. Alternatively, you can automate this step by configuring the `Greybel › Create Ingame` setting in the Greybel VS extension.
+1. Navigate to greybel extension settings `@ext:ayecue.greybel-vs` and change `Ingame Directory` to `/viper/`
+2. Navigate to the `main.src` file within VS Code.
+3. Right-click on `main.src` and select the `Build` option from the context menu. Successful compilation will create a new `build` directory in your project.
+4. Copy `viperSetup.src` to the game, compile and run it in the game and copy everything in the `build` folder in `vscode` to greyhack
+`/viper/` folder accordingly.
+4. To deploy the tool in Grey Hack, copy the `installerX.src` files from the `build` folder into the game. Alternatively, you can automate this step by configuring the `Greybel › Create Ingame` setting in the Greybel VS extension.
 
 #### Integrating with Grey Hack
 
 1. Within Grey Hack, build and run each `installerX.src` file.
-2. Change your directory to `/root` using the command:
+2. Change your directory to `/viper/` using the command:
    > [!Note]
    > The installation directory for the installers can be customized in the Greybel VS extension settings.
 3. Compile the main script to your preferred location in the game with:
