@@ -1730,7 +1730,8 @@ commandManager.registerCommand(Command.New({
         }),
         Parameter.New({
             "name": "version",
-            "required": true
+            "required": false,
+            "default": "1.0.0"
         })
     ],
     "callback": @findlibCommandHandler
