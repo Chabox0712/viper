@@ -119,6 +119,36 @@ libs.find = function(fileName, fileObject) //find files under a dir
     return founded
 end function
 
+clacCommandHandler = function(params, extensionMediator)
+    help = "calc: num sign num2 [eg 2 + 2] + - * / %"
+    calc = user_input("Enter : ")
+    calc = calc.split(" ")
+    if(calc.len != 3)then return print(help)
+    if(calc[1] == "-")then
+        return print((calc[0]).to_int - (calc[2]).to_int)
+    end if
+    if(calc[1] == "+")then
+        return print((calc[0]).to_int + (calc[2]).to_int)
+    end if
+    if(calc[1] == "*")then
+        return print((calc[0]).to_int * (calc[2]).to_int)
+    end if
+    if(calc[1] == "/")then
+        return print((calc[0]).to_int / (calc[2]).to_int)
+    end if
+    if(calc[1] == "%")then
+        return print((calc[0]).to_int % (calc[2]).to_int)
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "calc",
+    "description": "Built in calculator",
+    "parameters": [],
+    "callback": @clacCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
 findfileCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
@@ -742,6 +772,7 @@ sshCommandHandler = function(params, extensionMediator)
         password = dictionaryManager.get()
         while not password isa Error 
             result = handler.connectTo(ip, port, username, password, service)
+            if typeof(result)=="shell" then print("Password found "+username+"@"+password+".")
             if not result isa Error then break
             password = dictionaryManager.get()
         end while
