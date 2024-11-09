@@ -19,5 +19,5 @@ getUserFromHandler = function (handler)
             return "guest"
         end if
     end if
-    return "unknown"
+    return "Unknown"
 end function
