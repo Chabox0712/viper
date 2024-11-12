@@ -1262,19 +1262,16 @@ jumpFileCommandHandler = function(params, extensionMediator)
     session = sessionManager.currentSession
     handler = session.handler
     file = handler.file
+    computer = handler.computer.computer
     path = params.path
-    
-    file = handler.createFile(path + "/jumpfile.src")
-    if file isa Error then return file
-    handler.delete(path + "/jumpfile.src")
-    if file isa Error then return file
-    file = handler.createFile(path + "/jumpfile.src")
-    if file isa Error then return file
-    
-    file = handler.getFile(path + "/jumpfile.src")
-    if file isa Error then return file
+    pathFile = path
 
-    file.setContent(jumpfileText)
+    if(pathFile==".")then pathFile = handler.path
+    fileSrc = computer.touch(pathFile, "jumpfile.src")
+    if(fileSrc!=1)then return fileSrc
+    file = computer.File(pathFile+"/jumpfile.src")
+    if(typeof(file)!="file") then return print("jumpfile.src not found.")
+    file.set_content(jumpfileText)
 
     result = handler.buildFile(file.path(), handler.getFile(path).path())
     if result isa Error then return result
