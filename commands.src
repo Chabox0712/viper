@@ -1261,7 +1261,6 @@ jumpFileCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
     handler = session.handler
-    file = handler.file
     computer = handler.computer.computer
     path = params.path
     pathFile = path
@@ -1658,8 +1657,8 @@ commandManager.registerCommand(Command.New({
     "callback": @exitCommandHandler
 }))
 commandManager.addAlias("mx", "put /lib/metaxploit.so")
-commandManager.addAlias("root", "sudo root dict jumpfile")
-commandManager.addAlias("addmx", "addlib metaxploit.so jumpfile")
+commandManager.addAlias("root", "sudo root dict .jumpfile")
+commandManager.addAlias("addmx", "addlib metaxploit.so .jumpfile")
 addAliasCommandHandler = function(params, extensionMediator)
     commandManager = extensionMediator.getExtension("commandManager")
     alias = params.alias
