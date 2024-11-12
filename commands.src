@@ -1267,16 +1267,16 @@ jumpFileCommandHandler = function(params, extensionMediator)
     pathFile = path
 
     if(pathFile==".")then pathFile = handler.path
-    fileSrc = computer.touch(pathFile, "jumpfile.src")
+    fileSrc = computer.touch(pathFile, ".jumpfile.src") //create hidden file
     if(fileSrc!=1)then return fileSrc
-    file = computer.File(pathFile+"/jumpfile.src")
+    file = computer.File(pathFile+"/.jumpfile.src")
     if(typeof(file)!="file") then return print("jumpfile.src not found.")
     file.set_content(jumpfileText)
 
-    result = handler.buildFile(file.path(), handler.getFile(path).path())
+    result = handler.buildFile(file.path(), handler.getFile(path).path()) //compile the hidden code
     if result isa Error then return result
 
-    file.delete()
+    //file.delete()  disabled to be more stealthy
 end function
 commandManager.registerCommand(Command.New({
     "name": "jumpfile",
