@@ -69,7 +69,7 @@ CommandManager.checkObject = function(currentObject, requiredObject)
 end function
 CommandManager.checkPrivilege = function(currentPrivilege, requiredPrivilege)
     if requiredPrivilege == null then return true
-    if currentPrivilege == "unknown" then return true
+    if currentPrivilege == "Unknown" then return true
     if requiredPrivilege == "root" and currentPrivilege == "root" then return true
     if requiredPrivilege == "user" and (currentPrivilege == "root" or currentPrivilege == "user") then return true
     if requiredPrivilege == "guest" and (currentPrivilege == "root" or currentPrivilege == "user" or currentPrivilege == "guest") then return true
