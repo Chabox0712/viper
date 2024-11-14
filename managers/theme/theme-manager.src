@@ -39,12 +39,18 @@ ThemeManager.setMediator = function (mediator)
     self.mediator = mediator
 end function
 ThemeManager.init = function()
+    sessionManager = self.mediator.getExtension("sessionManager")
+    pivotSession = sessionManager.pivotSession
+    handler = pivotSession.handler
+    user = handler.user
     configManager = self.mediator.getExtension("configManager")
-    if not configManager.config.hasIndex("theme") then
-        configManager.saveConfig({"theme": self.colors})
+    if(not user=="Unknown")then
+        if not configManager.config.hasIndex("theme") then
+            configManager.saveConfig({"theme": self.colors})
+        end if
+        self.colors = self.colors + configManager.config.theme
+        configManager.saveConfig({"theme": themeManager.colors})
     end if
-    self.colors = self.colors + configManager.config.theme
-    configManager.saveConfig({"theme": themeManager.colors})
 end function
 ThemeManager.New = function()
     result = new ThemeManager

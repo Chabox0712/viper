@@ -28,6 +28,20 @@ Metaxploit.getLib = function (address, port)
         return result
     end if
 end function
+Metaxploit.hackExploit = function(lib,options,address,value)
+    results = []
+    vulnaribilities = [address]
+    handleHack = function (vulnaribility)
+        result = lib.overflow(vulnaribility, value, options)
+        if result == string or result == null or result == number then return result
+        results.push(computerObjectFactory(result))
+        return results
+    end function
+    handleFilter = function (vulnaribility)
+        return vulnaribility != null
+    end function
+    return flat(filter(map(vulnaribilities, @handleHack), @handleFilter))
+end function
 Metaxploit.hack = function(lib, options)
     vulnaribilities = self.getVulnerabilities(lib)
     if vulnaribilities isa Error then return vulnaribilities
@@ -36,6 +50,7 @@ Metaxploit.hack = function(lib, options)
         results = []
         for exploit in exploits
             if options == null then options = ""
+            print(vulnaribility[0]+" "+exploit)
             result = lib.overflow(vulnaribility[0], exploit, options)
             if result == string or result == null or result == number then continue
             results.push(computerObjectFactory(result))

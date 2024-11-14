@@ -21,6 +21,26 @@ MetaxploitManager.getLib = function (address, port)
     currentMetaxploit = libManager.getCurrentLib(LIB_TYPES.METAXPLOIT).lib
     return currentMetaxploit.getLib(address, port)
 end function
+MetaxploitManager.exploitKnown = function(ipAddress,port,address,value,options)
+    libManager = self.mediator.getExtension("libManager")
+    if libManager.getCurrentLib(LIB_TYPES.METAXPLOIT) == null then return Error.New("No metaxploit library loaded")
+    currentMetaxploit = libManager.getCurrentLib(LIB_TYPES.METAXPLOIT).lib
+    if libManager.getPivotLib(LIB_TYPES.METAXPLOIT) == null then return Error.New("No metaxploit pivot library loaded")
+    pivotMetaxploit = libManager.getPivotLib(LIB_TYPES.METAXPLOIT).lib
+    if is_valid_ip(ipAddress) == false then
+        sessionManager = self.mediator.getExtension("sessionManager")
+        session = sessionManager.currentSession
+        handler = session.handler
+        ipAddress = handler.getFile(ipAddress)
+        if ipAddress isa Error then return ipAddress
+        ipAddress = ipAddress.path()
+    end if
+    lib = currentMetaxploit.getLib(ipAddress, port)
+    if lib isa Error then return lib
+    if is_valid_ip(port) then options = port
+    if options == null then return pivotMetaxploit.hackExploit(lib, port,address,value)
+    return pivotMetaxploit.hackExploit(lib, options,address,value)
+end function
 MetaxploitManager.hack = function (address, port, options)
     libManager = self.mediator.getExtension("libManager")
     if libManager.getCurrentLib(LIB_TYPES.METAXPLOIT) == null then return Error.New("No metaxploit library loaded")

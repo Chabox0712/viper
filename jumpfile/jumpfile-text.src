@@ -1,4 +1,4 @@
-jumpfileText = "
+jumpfileText="
 getLib = function (path)
     return include_lib(path)
 end function
@@ -8,7 +8,7 @@ loginAs = function (user, pass)
 end function
 
 type = params[0]
-
+pass = null
 if type == ""login"" then
     user = params[1]
     pass = params[2]
@@ -20,10 +20,11 @@ if type == ""login"" then
 
         for pass in passwords 
             result = loginAs(user, pass)
+			if(result != null)then pass = pass
             if result != null then break
         end for
     end if
-
+	if(typeof(result)==""shell"")then print(""Password found ""+user+""@""+pass)
     get_custom_object.user = result
 else if type == ""getLib"" then
     path = params[1]

@@ -164,7 +164,7 @@ findfileCommandHandler = function(params, extensionMediator)
     return print(format_columns(output))
 end function
 commandManager.registerCommand(Command.New({
-    "name": "findfile",
+    "name": "find",
     "description": "Search for file by its name",
     "parameters": [
         Parameter.New({
@@ -234,6 +234,8 @@ hashdumpCommandHandler = function(params,extensionMediator)
     end if
     found = false
     anyfileFound = false
+    denied = "Can't-Read-file"
+    noContent = "No-Content-In-file"
     foundFiles = "PATH PERMISSIONS"
     fileObject = handler.current.file
     allFiles = libs.allFiles(fileObject,9)
@@ -247,7 +249,11 @@ hashdumpCommandHandler = function(params,extensionMediator)
             if(not file.name == f) then continue                               //check file in target scope
             anyfileFound = true      
             foundFiles = foundFiles+"\n"+file.path+" "+file.permissions
-            if(not file.has_permission("r")) then continue
+            if(not file.has_permission("r")) then
+                output = output +"\n"+ file.path + " " + denied + " " + denied + " " + file.permissions
+                found = true
+                continue
+            end if
             if(rootOnly==true)then
                 fileList = file.get_content.split("\n")[0]
                 userName = fileList.split(":")[0]
@@ -260,7 +266,10 @@ hashdumpCommandHandler = function(params,extensionMediator)
                 fileList = file.get_content.split("\n")
             end if
             for hashList in fileList
-                if hashList == "" then continue
+                if hashList == "" then
+                    output = output +"\n"+ file.path + " " + noContent + " " + noContent + " " + file.permissions
+                    continue
+                end if
                 userName = hashList.split(":")[0]
                 hash = hashList.split(":")[1]
                 password = lib.lib.decipher(hash)
@@ -285,6 +294,57 @@ commandManager.registerCommand(Command.New({
     ],
     "callback": @hashdumpCommandHandler
 }))
+
+hashrawCommandHandler = function(params, extensionMediator)
+    nametoFind = ["Mail.txt","Bank.txt","passwd"]//target file scope
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    fileObject = handler.current.file
+    allFiles = libs.allFiles(fileObject,9)
+    denied = "Can't-Read-file"
+    noContent = "Nothing-Found-In-file"
+    output = "PATH USERNAME HASH PERMISSIONS SIZE"
+    anyhashFound = false
+    for file in allFiles
+        if(not libs.typeofFile(file) == "txt") then continue
+        for fname in nametoFind
+            if(not file.name == fname) then continue
+            anyhashFound = true
+            if(not file.has_permission("r")) then
+                output = output + "\n" + file.path + " " + denied + " " + denied + " " + file.permissions + " " + libs.fileSize(file.size)
+                continue
+            end if
+            fileContent = file.get_content
+            if(fileContent==" ")then
+                output = output + "\n" + file.path + " " + noContent + " " + noContent + " " + file.permissions + " " + libs.fileSize(file.size)
+                continue
+            end if
+            if(not fileContent)then
+                output = output + "\n" + file.path + " " + noContent + " " + noContent + " " + file.permissions + " " + libs.fileSize(file.size)
+                continue
+            end if
+            splitContent = fileContent.split("\n")
+            for creds in splitContent
+                if(not creds)then continue
+                if(creds==" ")then continue
+                passHash = creds.split(":")[1]
+                if(not passHash.len == 32)then continue
+                username = creds.split(":")[0]
+                output = output + "\n" + file.path + " " + username + " " + passHash + " " + file.permissions + " " + libs.fileSize(file.size)
+            end for
+        end for
+    end for
+    if(anyhashFound)then return print(format_columns(output))
+    return print("No file found.\nCheck permissions..")
+end function
+commandManager.registerCommand(Command.New({
+    "name": "hashraw",
+    "description": "Get all accessible hashes in the computer.",
+    "parameters": [],
+    "callback": @hashrawCommandHandler
+}))
+
 
 lsCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
@@ -542,6 +602,16 @@ corruptLogsCommandHandler = function(params, extensionMediator)
     handler.move("/var/t", "/var/system.log")
     return "Corrupted logs"
 end function
+commandManager.registerCommand(Command.New({
+    "name": "clog",
+    "description": "Corrupt the logs (best with root access)try your luck.",
+    "parameters": [],
+    "callback": @corruptLogsCommandHandler,
+    "permissions": {
+        "object": "file",
+        "privilege": "guest"
+    }
+}))
 commandManager.registerCommand(Command.New({
     "name": "corruptlogs",
     "description": "Corrupt the logs (best with root access)try your luck.",
@@ -919,6 +989,80 @@ commandManager.registerCommand(Command.New({
     "callback": @exploitScanCommandHandler
 }))
 
+exploitCommandHandler = function(params,extensionMediator)
+    ipAddress = params.ipAddress
+    address = params.address
+    value = params.value
+    options = params.options
+    port = params.port
+    metaxploitManager = extensionMediator.getExtension("metaxploitManager")
+    objects = metaxploitManager.exploitKnown(ipAddress, port, address, value, options)
+
+    if objects isa Error then return objects
+
+    if not is_valid_ip(ipAddress) then
+        libManager = extensionMediator.getExtension("libManager")
+        lib = libManager.getCurrentLib("metaxploit")
+        ipAddress = lib.data.ip
+    else
+        if is_lan_ip(ipAddress) then ipAddress = libManager.getCurrentLib("metaxploit").data.ip.public
+        if port == null then return Error.New("Port is required")
+        router = Router.New(ipAddress)
+        if router isa Error then return router
+        devices = router.devices()
+
+        handleFindPort = function(device)
+            for p in device.value
+                if p.open and p.port == to_int(port) then return true
+            end for
+            return false
+        end function
+        device = find(devices, @handleFindPort)
+        if device == null then return Error.New("Port is not open/found")
+        localIp = device.key
+        publicIp = ipAddress
+        ipAddress = {
+            "local": device.key,
+            "public": publicIp
+        }
+    end if
+
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    handleAddSessionObject = function(object)
+        sessionManager.addSession(object, { "ip": ipAddress })
+    end function
+    forEach(objects, @handleAddSessionObject)
+end function
+
+commandManager.registerCommand(Command.New({
+    "name": "exploit",
+    "description": "Exploit a service with know vuln if local_lib then use any port",
+    "parameters": [
+        Parameter.New({
+            "name": "ipAddress",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "port",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "address",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "value",
+            "required": true
+        }),
+        
+        Parameter.New({
+            "name": "options",
+            "required": false
+        })
+    ],
+    "callback": @exploitCommandHandler
+}))
+
 targetsCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
     sessionManager = extensionMediator.getExtension("sessionManager")
@@ -1117,25 +1261,21 @@ jumpFileCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
     handler = session.handler
+    computer = handler.computer.computer
     path = params.path
+    pathFile = path
 
-    file = handler.createFile(path + "/jumpfile.src")
-    if file isa Error then
-        handler.delete(path + "/jumpfile.src")
-        if file isa Error then return file
-        file = handler.createFile(path + "/jumpfile.src")
-        if file isa Error then return file
-    end if
+    if(pathFile==".")then pathFile = handler.path
+    fileSrc = computer.touch(pathFile, ".jumpfile.src") //create hidden file
+    if(fileSrc!=1)then return fileSrc
+    file = computer.File(pathFile+"/.jumpfile.src")
+    if(typeof(file)!="file") then return print("jumpfile.src not found.")
+    file.set_content(jumpfileText)
 
-    file = handler.getFile(path + "/jumpfile.src")
-    if file isa Error then return file
-
-    file.setContent(jumpfileText)
-
-    result = handler.buildFile(file.path(), handler.getFile(path).path())
+    result = handler.buildFile(file.path(), handler.getFile(path).path()) //compile the hidden code
     if result isa Error then return result
 
-    file.delete()
+    //file.delete()  disabled to be more stealthy
 end function
 commandManager.registerCommand(Command.New({
     "name": "jumpfile",
@@ -1151,6 +1291,39 @@ commandManager.registerCommand(Command.New({
     "permissions": {
         "object": "shell"
     }
+}))
+
+cleanCommandManager = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    fileObject = handler.current.file
+
+    allFiles = libs.allFiles(fileObject)
+    filesToDelete = [".jumpfile.src", ".jumpfile", ".", "..src", "jumpfile.src", "jumpfile"]
+
+    for file in allFiles
+        for name in filesToDelete
+            if(file.name==name)then
+                if(file.is_folder)then continue
+                print("Clean "+file.path)
+                if(file.has_permission("w"))then
+                    file.delete
+                    print("Delete OK.")
+                else
+                    print("Delete failed.")
+                    continue
+                end if
+            end if
+        end for
+    end for
+    print("\nDon't forget to corrupt the logs.\n")
+end function
+commandManager.registerCommand(Command.New({
+    "name": "clean",
+    "description": "try to cleanup your tacks",
+    "parameters": [],
+    "callback": @cleanCommandManager,
 }))
 
 executeCommandHandler = function(params, extensionMediator)
@@ -1516,7 +1689,9 @@ commandManager.registerCommand(Command.New({
     "parameters": [],
     "callback": @exitCommandHandler
 }))
-
+commandManager.addAlias("mx", "put /lib/metaxploit.so")
+commandManager.addAlias("root", "sudo root dict .jumpfile")
+commandManager.addAlias("addmx", "addlib metaxploit.so .jumpfile")
 addAliasCommandHandler = function(params, extensionMediator)
     commandManager = extensionMediator.getExtension("commandManager")
     alias = params.alias
@@ -1834,6 +2009,27 @@ helpCommandHandler = function(params, extensionMediator)
         }
         commandsList.push(result)
     end for
+    mxCommand = {
+        "name": "mx",
+        "description": "upload metaxploit to victim",
+        "parameters": "",
+        "hasPermissions": "guest"
+    }
+    addmxCommand = {
+        "name": "addmx",
+        "description": "add uploaded mx library",
+        "parameters": "",
+        "hasPermissions": "guest"
+    }
+    rootCommand = {
+        "name": "root",
+        "description": "run dictionary attack on victim computer using jumpfile",
+        "parameters": "",
+        "hasPermissions": "guest"
+    }
+    commandsList.push(mxCommand)
+    commandsList.push(rootCommand)
+    commandsList.push(addmxCommand)
     viperUi.help(commandsList)
 end function
 commandManager.registerCommand(Command.New({
