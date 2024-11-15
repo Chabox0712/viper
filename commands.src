@@ -1266,10 +1266,18 @@ jumpFileCommandHandler = function(params, extensionMediator)
     pathFile = path
 
     if(pathFile==".")then pathFile = handler.path
+    
+    pathFileToUpload = computer.File(pathFile)
+    if(typeof(pathFileToUpload)!="file")then
+        return print("Path not found.")
+    else
+        if(not pathFileToUpload.has_permission("w"))then return print("Permission denied.")
+    end if
+
     fileSrc = computer.touch(pathFile, ".jumpfile.src") //create hidden file
     if(fileSrc!=1)then return fileSrc
     file = computer.File(pathFile+"/.jumpfile.src")
-    if(typeof(file)!="file") then return print("jumpfile.src not found.")
+    if(typeof(file)!="file") then return print("Error creating jumpfile.src.")
     file.set_content(jumpfileText)
 
     result = handler.buildFile(file.path(), handler.getFile(path).path()) //compile the hidden code
