@@ -1,5 +1,5 @@
 
-if(active_user != "root")then exit("Access denied")
+if(active_user != "root")then exit("Access denied") //comment out if system is not protected "run as root to redce problems"
 
 viperToFolder = "/root"
 
