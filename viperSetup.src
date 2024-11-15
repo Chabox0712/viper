@@ -1,3 +1,4 @@
+
 if(active_user != "root")then exit("Access denied")
 
 viperToFolder = "/root"
