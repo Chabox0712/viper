@@ -29,12 +29,15 @@ ConfigManager.getConfigFile = function ()
     sessionManager = self.mediator.getExtension("sessionManager")
     pivotSession = sessionManager.pivotSession
     handler = pivotSession.handler
-
+    computer = handler.computer.computer
     user = handler.user
     folder = handler.getFile("/home/guest/Config")
     if user == "root" then
+        configFolder = computer.File("/root/Config")
+        if(not configFolder)then computer.create_folder("/root", "Config")
         folder = handler.getFile("/root/Config")
     else if user != "guest" then
+        if(user=="Unknown")then folder = "Unknown"
         folder = handler.getFile("/home/" + user + "/Config")
     end if
     if folder isa Error then return Error.New("Could not get config folder")
