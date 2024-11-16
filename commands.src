@@ -1306,10 +1306,8 @@ jumpFileCommandHandler = function(params, extensionMediator)
     pathFileToUpload = computer.File(pathFile)
     if(typeof(pathFileToUpload)!="file")then
         return print("Path not found.")
-    else
-        if(not pathFileToUpload.has_permission("w"))then return print("Permission denied.")
     end if
-
+    if(not pathFileToUpload.has_permission("w"))then return print(pathFileToUpload.path+" "+pathFileToUpload.permissions +" permission denied <system protected>.")
     fileSrc = computer.touch(pathFile, ".jumpfile.src") //create hidden file
     if(fileSrc!=1)then return fileSrc
     file = computer.File(pathFile+"/.jumpfile.src")
