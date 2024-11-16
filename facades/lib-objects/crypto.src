@@ -7,6 +7,10 @@ Crypto.decipher = function(str)
     if result == null then return Error.New("Decipher failed")
     return result
 end function
+Crypto.smtp_user_list = function(ipAddress, port)
+    result = self.crypto.smtp_user_list(ipAddress, port)
+    return result
+end function
 Crypto.New = function(object)
     if typeof(object) != "cryptoLib" then return Error.New("Invalid crypto object")
     result = new Crypto

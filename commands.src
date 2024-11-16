@@ -736,6 +736,40 @@ commandManager.registerCommand(Command.New({
     ],
     "callback": @rmCommandHandler
 }))
+smtpUserCommandHandler = function(params, extensionMediator)
+    libMannager = extensionMediator.getExtension("libManager")
+    lib = libMannager.getCurrentLib("crypto")
+    if lib == null then return Error.New("No crypto library loaded")
+    
+    ipAddress = params.ipAddress
+    port = params.port
+
+    result = lib.lib.smtp_user_list(ipAddress,port.to_int)
+    output = "Username Mail"
+    for user in result
+        userInfo = user.split(" ")
+        userName = userInfo[0]
+        mailInfo = userInfo[1]
+        if(mailInfo=="email")then mailInfo = "no-email-found"
+        output = output + "\n" + userName + " " + mailInfo
+    end for
+    print(format_columns(output))
+end function
+commandManager.registerCommand(Command.New({
+    "name": "smtpuserlist",
+    "description": "Get a list of users from smtp server and their emails if registered to the smtp server",
+    "parameters": [
+        Parameter.New({
+            "name": "ipAddress",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "port",
+            "required": true
+        })
+    ],
+    "callback": @smtpUserCommandHandler
+}))
 
 crackCommandHandler = function(params, extensionMediator)
     libMannager = extensionMediator.getExtension("libManager")
