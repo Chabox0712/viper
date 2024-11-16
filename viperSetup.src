@@ -84,6 +84,7 @@ computer.touch(viperToFolder, "installer2.src")
 computer.touch(viperToFolder, "installer3.src")
 computer.touch(viperToFolder, "installer4.src")
 computer.touch(viperToFolder, "installer5.src")
+computer.touch(viperToFolder, "installer6.src")
 computer.touch(viperToFolder, "main.src")
 computer.touch(viperToFolder, "mediator.src")
 
