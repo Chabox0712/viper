@@ -42,7 +42,7 @@ init = function()
     commandManager = extensionMediator.getExtension("commandManager")
     commandManager.run()
 
-    commandManager.executeCommand("addalias apt execute /bin/apt-get")
+    commandManager.executeCommand("addalias apt execute /bin/apt-get") //only works if you have execute access to /bin/apt-get
 
     viperUi = extensionMediator.getExtension("viperUi")
     sessionManager = extensionMediator.getExtension("sessionManager")
