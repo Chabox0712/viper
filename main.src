@@ -39,6 +39,11 @@ extensionMediator.addExtension("configManager", configManager)
 import_code("./commands.src")
 
 init = function()
+    commandManager = extensionMediator.getExtension("commandManager")
+    commandManager.run()
+
+    commandManager.executeCommand("addalias apt execute /bin/apt-get")
+
     viperUi = extensionMediator.getExtension("viperUi")
     sessionManager = extensionMediator.getExtension("sessionManager")
     libManager = extensionMediator.getExtension("libManager")
