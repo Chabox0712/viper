@@ -3,6 +3,8 @@ if(active_user != "root")then exit("Access denied") //comment out if system is n
 
 viperToFolder = "/root"
 
+//viperToFolder = user_input("Enter viper path # ")
+
 computer = get_shell.host_computer
 
 computer.create_folder(viperToFolder, "facades")
