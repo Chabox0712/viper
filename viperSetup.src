@@ -78,6 +78,7 @@ computer.touch(viperToFolder+"/utils", "climbFileToRoot.src")
 computer.touch(viperToFolder+"/utils", "getUserFromHandler.src")
 computer.touch(viperToFolder+"/utils", "random-ip.src")
 computer.touch(viperToFolder+"/utils", "string.src")
+computer.touch(viperToFolder+"/utils", "libs.src")
 
 computer.touch(viperToFolder, "commands.src")
 computer.touch(viperToFolder, "installer0.src")

@@ -122,7 +122,7 @@ hashdumpCommandHandler = function(params,extensionMediator)
     foundFiles = "PATH PERMISSIONS"
     fileObject = handler.current.file
     allFiles = libs.allFiles(fileObject,9)
-    output = "PATH USERNAME PASSWORD PERMISSIONS"
+    output = ""
     for file in allFiles
         if(not libs.typeofFile(file) == "txt") then continue
         for f in nametoFind
@@ -187,7 +187,7 @@ hashrawCommandHandler = function(params, extensionMediator)
     allFiles = libs.allFiles(fileObject,9)
     denied = "Can't-Read-file"
     noContent = "Nothing-Found-In-file"
-    output = "PATH USERNAME HASH PERMISSIONS SIZE"
+    output = ""
     anyhashFound = false
     for file in allFiles
         if(not libs.typeofFile(file) == "txt") then continue
