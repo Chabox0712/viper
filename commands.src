@@ -30,10 +30,8 @@ commandManager.registerCommand(Command.New({
     "description": "Built in calculator",
     "parameters": [],
     "callback": @clacCommandHandler,
-    "permissions": {
-        "object": "file"
-    }
 }))
+
 findfileCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
