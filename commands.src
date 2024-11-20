@@ -363,6 +363,34 @@ commandManager.registerCommand(Command.New({
     "callback": @chownCommandHandler
 }))
 
+userlistCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    file = handler.current.file
+    output = ""
+    allFiles = libs.allFiles(file)
+    for file in allFiles
+        if(libs.typeofFile(file) != "fld")then continue
+        if(file.path == "/root")then
+            output = output + "\n" + file.name + " " + file.path + " " + file.permissions + " " + libs.checkPermission(file)
+            continue
+        end if
+        if(file.name != "home") then continue
+        users = file.get_folders
+        for user in users
+            output = output + "\n" + user.name + " " + user.path + " " + user.permissions + " " + libs.checkPermission(user)
+        end for
+    end for
+    print(format_columns(output.remove(char(10)))+char(10))
+end function
+commandManager.registerCommand(Command.New({
+    "name": "users",
+    "description": "List users in the system",
+    "parameters":[],
+    "callback": @userlistCommandHandler
+}))
+
 chgrpCommandHandler = function (params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
