@@ -33,6 +33,7 @@ Metaxploit.hackExploit = function(lib,options,address,value)
     vulnaribilities = [address]
     handleHack = function (vulnaribility)
         result = lib.overflow(vulnaribility, value, options)
+        print("<color=white><b>"+typeof(result))
         if result == string or result == null or result == number then return result
         results.push(computerObjectFactory(result))
         return results
@@ -50,8 +51,9 @@ Metaxploit.hack = function(lib, options)
         results = []
         for exploit in exploits
             if options == null then options = ""
-            print(vulnaribility[0]+" "+exploit)
+            print("<b>"+vulnaribility[0]+" "+exploit)
             result = lib.overflow(vulnaribility[0], exploit, options)
+            print("<color=white><b>"+typeof(result))
             if result == string or result == null or result == number then continue
             results.push(computerObjectFactory(result))
         end for
