@@ -2,7 +2,7 @@
 
 ## What is This Project?
 
-This project has been created as an open-source alternative to tool called **Viper-v2.0**. This project has been created after the owners actions towards community. The project is a complete rewrite of the original project and is not based on any of the original code.
+This project has been created as an open-source alternative to tool called **Viper-v3.2.5**. This project has been created after the owners actions towards community. The project is a complete rewrite of the original project and is not based on any of the original code.
 
 ## What is Viper?
 
@@ -46,6 +46,8 @@ You can build this project from source or download the pre-built binaries from t
 ## Contributing
 
 If you want to contribute to this project, you can do so by creating a pull request. You can also create an issue if you find any bugs or want to suggest a feature.
+
+Please subscribe to my  YOUTUBE channel at [chabox](https//youtube.com/@chaboxgaming)
 
 ## License
 
