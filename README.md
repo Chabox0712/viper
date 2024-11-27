@@ -47,7 +47,9 @@ You can build this project from source or download the pre-built binaries from t
 
 If you want to contribute to this project, you can do so by creating a pull request. You can also create an issue if you find any bugs or want to suggest a feature.
 
-Please subscribe to my  YOUTUBE channel at [chabox](https//youtube.com/@chaboxgaming)
+Please subscribe to my  YOUTUBE channel at [youtube](https//youtube.com/@chaboxgaming)
+
+Git repo at [github-chabox][https://github.com/Chabox0712]
 
 ## License
 
