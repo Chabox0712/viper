@@ -843,6 +843,37 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+pingCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    ipAddress = params.ipAddress
+
+    pingResult = handler.shell.shell.ping(ipAddress)
+    if(pingResult == 1)then
+        return print("Ping Successfull.")
+    else if(pingResult == 0)then
+        return print("Ping Failed.")
+    else if(typeof(pingResult) == "string")then
+        return print(pingResult)
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "ping",
+    "description": "ping an ip address to see response",
+    "parameters": [
+        Parameter.New({
+            "name": "ipAddress",
+            "required": true
+        }),
+    ],
+    "callback": @pingCommandHandler,
+    "permissions": {
+        "object": "shell",
+        "privilege": "guest"
+    }
+}))
+
 passwdCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
