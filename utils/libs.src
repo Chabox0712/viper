@@ -31,7 +31,7 @@ libs.zenmap = "//code
     print(""Interesting ports on "" + params + ""\n"")
 
     for port in ports
-        if(typeof(port) != ""file"")then continue
+        if(typeof(port) != ""port"")then continue
         service_info = router.port_info(port)
         lan_ips = port.get_lan_ip
         port_status = ""open""
