@@ -2,7 +2,7 @@ libs = {}
 libs.zenmap = "//code
     computerObject = get_shell().host_computer
     params = params[0]
-    if not is_valid_ip(params) then exit(""Invalid-IP"")
+    if not is_valid_ip(params) then exit(""Invalid-IP."")
     if not computerObject.is_network_active then  exit(""nmap: No internet access."")
 
     ipAddress = params
@@ -14,8 +14,11 @@ libs.zenmap = "//code
         router = get_router(ipAddress)
     end if
 
-    if router == null then return print(""nmap: ip address not found"")
+    if router == null then exit(""nmap: ip address not found."")
     ports = null
+
+    print(char(10)+""<b>Router-Version : </b>""+router.kernel_version)
+    print(""<b>Public-Ip : </b>""+router.public_ip)
 
     if not isLanIp then
         ports = router.used_ports
@@ -23,11 +26,8 @@ libs.zenmap = "//code
         ports = router.device_ports(ipAddress)
     end if
 
-    if ports == null then return print(""nmap: ip address not found"")
-    if typeof(ports) == ""string"" then return print(ports)
-        
     info = ""PORT STATE SERVICE VERSION LAN""   
-    print(""\nStarting nmap v1.1 at "" + current_date)
+    print(""\nStarting Zenmap v2.35 at "" + current_date)
     print(""Interesting ports on "" + params + ""\n"")
 
     for port in ports
@@ -41,21 +41,29 @@ libs.zenmap = "//code
         end if
         info = info + ""\n"" + port.port_number + "" "" + port_status + "" "" + service_info + "" "" + lan_ips
     end for
-    if(ports.len == 0) then
-        print(""Scan finished. No open ports."")
+
+    if(typeof(ports) == ""string"")or(ports == null)then
+		if(ports == null)then ports = ""no ports found.""
+		print(ports+char(10))
     else
-        print(format_columns(info) + ""\n"")
+        if(ports.len == 0) then
+            print(""Scan finished. No open ports.""+char(10))
+        else
+            print(format_columns(info) + ""\n"")
+        end if
     end if
 
     output = ""ACTION PORT SOURCE_IP DESTINATION_IP""
     firewallrouter = get_router(ipAddress)
     if(not firewallrouter) then firewallrouter = get_router
+
     for rules in firewallrouter.firewall_rules
         output = output + ""\n"" + rules
     end for
-    print(""Firewall Rules."")
+
+    print(""Firewall Rules.""+char(10))
 	if(firewallrouter.firewall_rules.len == 0)then
-        print(""no firewall rules"")
+        print(""no firewall rules""+char(10))
     else
         print(format_columns(output) + ""\n"")
     end if
