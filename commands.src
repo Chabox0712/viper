@@ -943,8 +943,7 @@ commandManager.registerCommand(Command.New({
     ],
     "callback": @pingCommandHandler,
     "permissions": {
-        "object": "shell",
-        "privilege": "guest"
+        "object": "shell"
     }
 }))
 
