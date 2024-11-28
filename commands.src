@@ -3,7 +3,6 @@ import_code("./utils/random-ip.src")
 import_code("./managers/command/command.src")
 import_code("./managers/session/session.src")
 import_code("./utils/libs.src")
-import_code("./utils/nano.src")
 
 clacCommandHandler = function(params, extensionMediator)
     help = "calc: num sign num2 [eg 2 + 2] + - * / %"
@@ -104,8 +103,9 @@ nanoCommandHandler = function(params,extensionMediator)
     fileObject = handler.current.file
 
     file = libs.getFile(filePath, fileObject)
+    if(not typeof(file) == "file")then return print("No file found at ~ "+filePath+" ~")
     if(libs.typeofFile(file) == "txt")then
-        nano(file)
+        libs.nano(file)
     else
         return print("Error file "+file.path+" is ~ "+libs.typeofFile(file)+" ~")
     end if
