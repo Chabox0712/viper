@@ -3,6 +3,7 @@ import_code("./utils/random-ip.src")
 import_code("./managers/command/command.src")
 import_code("./managers/session/session.src")
 import_code("./utils/libs.src")
+import_code("./utils/nano.src")
 
 clacCommandHandler = function(params, extensionMediator)
     help = "calc: num sign num2 [eg 2 + 2] + - * / %"
@@ -90,6 +91,34 @@ commandManager.registerCommand(Command.New({
         "default": "r"
     })],
     "callback": @vulnCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
+nanoCommandHandler = function(params,extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    filePath = params.filePath
+    fileObject = handler.current.file
+
+    file = libs.getFile(filePath, fileObject)
+    if(libs.typeofFile(file) == "txt")then
+        nano(file)
+    else
+        return print("Error file "+file.path+" is ~ "+libs.typeofFile(file)+" ~")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "nano",
+    "description": "In-built text editor by @Chabox",
+    "parameters": [
+        Parameter.New({
+        "name": "filePath",
+        "required": true,
+    })],
+    "callback": @nanoCommandHandler,
     "permissions": {
         "object": "file"
     }

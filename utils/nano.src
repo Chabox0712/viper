@@ -1,0 +1,61 @@
+nano =  function(textFile)
+    if not textFile then return print("File not found.")
+    if textFile.is_binary or textFile.is_folder then return print("File not text.")
+	if not textFile.has_permission("w") then return print("Permission denied.")
+    text = textFile.get_content
+	lines = ""
+    if text then lines = text.split(char(10))
+    while true
+        clear_screen
+        for i in lines.indexes
+            line = "<color=orange>" + str(i + 1) + "</color>" + char(9)
+            line = line + lines[i]
+            print(line)
+        end for
+        print("x: save and exit, s: save, q: exit, i: insert, m: modify, r: remove")
+        option = user_input("> ", false, true)
+        if option.lower == "s" or option.lower == "x" then
+			if not textFile.has_permission("r") then
+				if (option.lower == "x") then return print("Permission denied")
+				print("Permission denied")
+				wait(0.5)
+				continue
+			end if
+			textFile.set_content(lines.join(char(10)))
+		end if
+        if option.lower == "q" or option.lower == "x" then break
+        if option.lower == "i" then
+            print("specify line number, c to cancel.")
+            lineNum = user_input("> ").to_int
+            newText = user_input("input text:" + char(10))
+            if not lineNum isa number then continue
+            if lineNum >= lines.len then lineNum = lines.len
+            if lineNum < 0 then lineNum = 0
+            lines = lines[:lineNum] + [newText] + lines[lineNum:]
+            continue
+        end if
+        if option.lower == "m" then
+            print("specify line number, c to cancel.")
+            lineNum = user_input("> ").to_int
+            newText = user_input("input text:" + char(10))
+            if not lineNum isa number then continue
+            if lineNum > lines.len then lineNum = lines.len
+            if lineNum < 1 then lineNum = 1
+            lines[lineNum - 1] = newText
+            continue
+        end if
+        if option.lower == "r" then
+            print("specify line number, c to cancel.")
+            lineNum = user_input("> ").to_int
+            if not lineNum isa number then continue
+            if lineNum < 1 or lineNum > lines.len then continue
+            if lines.len == 1 then
+                lines[0] = ""
+                continue
+            end if
+            lines = lines[:lineNum - 1] + lines[lineNum:]
+            continue
+        end if
+    end while
+    return print("Done.")
+end function
