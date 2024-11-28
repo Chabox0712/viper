@@ -1,4 +1,65 @@
 libs = {}
+libs.zenmap = "//code
+    computerObject = get_shell().host_computer
+    params = params[0]
+    if not is_valid_ip(params) then exit(""Invalid-IP"")
+    if not computerObject.is_network_active then  exit(""nmap: No internet access."")
+
+    ipAddress = params
+    isLanIp = is_lan_ip(ipAddress)
+
+    if isLanIp then
+        router = get_router;
+    else 
+        router = get_router(ipAddress)
+    end if
+
+    if router == null then return print(""nmap: ip address not found"")
+    ports = null
+
+    if not isLanIp then
+        ports = router.used_ports
+    else
+        ports = router.device_ports(ipAddress)
+    end if
+
+    if ports == null then return print(""nmap: ip address not found"")
+    if typeof(ports) == ""string"" then return print(ports)
+        
+    info = ""PORT STATE SERVICE VERSION LAN""   
+    print(""\nStarting nmap v1.1 at "" + current_date)
+    print(""Interesting ports on "" + params + ""\n"")
+
+    for port in ports
+        if(typeof(port) != ""file"")then continue
+        service_info = router.port_info(port)
+        lan_ips = port.get_lan_ip
+        port_status = ""open""
+
+        if(port.is_closed and not isLanIp) then
+            port_status = ""closed""
+        end if
+        info = info + ""\n"" + port.port_number + "" "" + port_status + "" "" + service_info + "" "" + lan_ips
+    end for
+    if(ports.len == 0) then
+        print(""Scan finished. No open ports."")
+    else
+        print(format_columns(info) + ""\n"")
+    end if
+
+    output = ""ACTION PORT SOURCE_IP DESTINATION_IP""
+    firewallrouter = get_router(ipAddress)
+    if(not firewallrouter) then firewallrouter = get_router
+    for rules in firewallrouter.firewall_rules
+        output = output + ""\n"" + rules
+    end for
+    print(""Firewall Rules."")
+	if(firewallrouter.firewall_rules.len == 0)then
+        print(""no firewall rules"")
+    else
+        print(format_columns(output) + ""\n"")
+    end if
+"
 libs.nano =  function(textFile)
     if not textFile then return print("File not found.")
     if textFile.is_binary or textFile.is_folder then return print("File not text.")

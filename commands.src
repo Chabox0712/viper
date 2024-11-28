@@ -774,6 +774,51 @@ commandManager.registerCommand(Command.New({
     "callback": @nmapCommandHandler
 }))
 
+zenmapCmmandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    shellObject = handler.shell.shell
+    ip = params.ip
+    if ip == "random" then ip = randomIp()
+
+    shellObject.host_computer.touch(handler.path, "zenmap.src")
+    zenmapSorceFile = shellObject.host_computer.File(handler.path+"/zenmap.src")
+    if(libs.typeofFile(zenmapSorceFile)== "txt")then
+        zenmapSorceFile.set_content(libs.zenmap)
+        shellObject.build(zenmapSorceFile.path, handler.path, true)
+        zenmapSorceFile.delete
+        zenMapExecutable = shellObject.host_computer.File(handler.path+"/zenmap")
+        if(libs.typeofFile(zenMapExecutable) == "bin") then
+            shellObject.launch(zenMapExecutable.path, ip)
+            zenMapExecutable.delete
+        else
+            return print("Error occured can't-find binary file")
+        end if
+    else
+        return print("Error occured source-file not found")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "zenmap",
+    "description": "Creates an executable for scanning and deletes it when done.Best for running scan locally",
+    "parameters": [
+        OptionsParameter.New({
+            "name": "ip",
+            "required": false,
+            "options": {
+                "ip": "ip",
+                "random": "random"
+            },
+            "default": "random"
+        })
+    ],
+    "callback": @zenmapCmmandHandler,
+    "permissions": {
+        "object": "shell"
+    }
+}))
+
 whoisCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
     ip = params.ip
