@@ -719,6 +719,7 @@ crackCommandHandler = function(params, extensionMediator)
     if lib == null then return Error.New("No crypto library loaded")
 
     hash = params.hash
+    if(hash.len != 32)then return print("Error invalid-hash.")
     result = lib.lib.decipher(hash)
     return result
 end function
