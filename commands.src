@@ -82,7 +82,7 @@ vulnCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "vuln",
-    "description": "Get vulnerable File / Folder Permissions. params [r] [x] [w]",
+    "description": "Get vulnerable File / Folder Permissions. permission [r] [x] [w]",
     "parameters": [
         Parameter.New({
         "name": "permission",
