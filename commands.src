@@ -877,7 +877,7 @@ sshCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "ssh",
-    "description": "Login to a computer",
+    "description": "Login to a computer via ssh",
     "parameters": [
         Parameter.New({
             "name": "ip",
@@ -974,12 +974,12 @@ commandManager.registerCommand(Command.New({
         }),
         Parameter.New({
             "name": "username",
-            "required": true,
+            "required": false,
             "default": "root"
         }),
         Parameter.New({
             "name": "password",
-            "required": true,
+            "required": false,
             "options": {
                 "dict": "dict",
             },
