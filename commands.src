@@ -941,7 +941,7 @@ ftpCommandHanlder = function(params, extensionMediator)
         if(typeof(ftpExeFile) == "file")then
             shellObject.launch(ftpExeFile.path, user+"@"+password+" "+ipAddress+" "+port)
             if(typeof(get_custom_object.ftp_shell) == "ftpshell")then
-                print("Obtaining full computer object form ftpshell object.")
+                print("Obtaining computerObject form ftpshellObject.")
                 print("Done.")
                 session = sessionManager.addSession(get_custom_object.ftp_shell.host_computer, {})
                 sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
