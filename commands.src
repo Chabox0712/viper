@@ -939,12 +939,10 @@ ftpCommandHanlder = function(params, extensionMediator)
         ftpSourceFile.delete
         ftpExeFile = computerObject.File(current_path+"/ftpCode")
         if(typeof(ftpExeFile) == "file")then
-
             if password == "dict" then
                 dictionaryManager = extensionMediator.getExtension("dictionaryManager")
                 get_custom_object.passwords = [] + dictionaryManager.passwords
                 print "Trying dictionary attack"
-
                 shellObject.launch(ftpExeFile.path, user+"@"+"dict"+" "+ipAddress+" "+port)
             else
                 shellObject.launch(ftpExeFile.path, user+"@"+password+" "+ipAddress+" "+port)

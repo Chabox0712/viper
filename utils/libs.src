@@ -10,7 +10,6 @@ print(""Connecting..."")
 
 if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
     passwords = get_custom_object.passwords
-
     for pass in passwords 
         ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
         if(typeof(ftp_shell) == ""ftpshell"") then break
