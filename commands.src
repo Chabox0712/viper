@@ -918,7 +918,6 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
-
 ftpCommandHanlder = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
@@ -942,7 +941,9 @@ ftpCommandHanlder = function(params, extensionMediator)
         if(typeof(ftpExeFile) == "file")then
             shellObject.launch(ftpExeFile.path, user+"@"+password+" "+ipAddress+" "+port)
             if(typeof(get_custom_object.ftp_shell) == "ftpshell")then
+                print("Obtaining full computer object form ftpshell object.")
                 ftpComputerObject  = get_custom_object.ftp_shell.host_computer
+                print("Done.")
                 session = sessionManager.addSession(ftpComputerObject, {})
                 sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
             else
