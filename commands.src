@@ -918,6 +918,78 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+
+ftpCommandHanlder = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    ipAddress = params.ipAddress
+    user = params.username
+    password = params.password
+    port = params.port
+    
+    shellObject = handler.shell.shell
+    computerObject = shellObject.host_computer
+
+    computerObject.touch(current_path, "ftpCode.src")
+    ftpSourceFile = computerObject.File(current_path+"/ftpCode.src")
+
+    if(typeof(ftpSourceFile) == "file")then
+        ftpSourceFile.set_content(libs.ftpCode)
+        shellObject.build(current_path+"/ftpCode.src", current_path)
+        ftpSourceFile.delete
+        ftpExeFile = computerObject.File(current_path+"/ftpCode")
+        if(typeof(ftpExeFile) == "file")then
+            shellObject.launch(ftpExeFile.path, user+"@"+password+" "+ipAddress+" "+port)
+            if(typeof(get_custom_object.ftp_shell) == "ftpshell")then
+                ftpComputerObject  = get_custom_object.ftp_shell.host_computer
+                session = sessionManager.addSession(ftpComputerObject, {})
+                sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
+            else
+                print("Error occured.")
+            end if
+            ftpExeFile.delete
+        else
+            return print("Build failed.")
+        end if
+    else
+        return print("ftpSourceFile not found.")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "ftp",
+    "description": "Login to a computer via ftp (NOTE:This gets a computer object if successfull)",
+    "parameters": [
+        Parameter.New({
+            "name": "ipAddress",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "username",
+            "required": true,
+            "default": "root"
+        }),
+        Parameter.New({
+            "name": "password",
+            "required": true,
+            "options": {
+                "dict": "dict",
+            },
+            "default": "dict"
+        }),
+        Parameter.New({
+            "name": "port",
+            "required": false,
+            "type": PARAMETER_TYPES.NUMBER,
+            "default": 21
+        }),
+    ],
+    "callback": @ftpCommandHanlder,
+    "permissions": {
+        "object": "shell"
+    }
+}))
+
 pingCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
