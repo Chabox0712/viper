@@ -8,7 +8,17 @@ if params.len == 3 then port = params[2].to_int
 if typeof(port) != ""number"" then exit(""Invalid port: "" + port)
 print(""Connecting..."")
 
-ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
+if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
+    passwords = get_custom_object.passwords
+
+    for pass in passwords 
+        ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
+        if(typeof(ftp_shell) == ""ftpshell"") then break
+    end for
+else
+    ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
+end if
+
 if ftp_shell then
 	get_custom_object.ftp_shell = ftp_shell
 else
