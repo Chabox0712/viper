@@ -739,6 +739,8 @@ nmapCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
     ip = params.ip
 
+    if(not get_shell.host_computer.is_network_active)then return("No internet access.")
+
     if ip == "random" then ip = randomIp()
 
     router = Router.New(ip)
@@ -2035,6 +2037,8 @@ commandManager.registerCommand(Command.New({
 findlibCommandHandler = function(params, extensionMediator)
     type = params.type
     version = params.version
+
+    if(not get_shell.host_computer.is_network_active)then return("No internet access.")
 
     validTypes = ["kernel_router", "ssh", "ftp", "http", "rshell", "smtp", "employees", "cam", "repository"]
 
