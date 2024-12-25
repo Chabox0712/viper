@@ -5,8 +5,8 @@ import_code("../../utils/getUserFromHandler.src")
 
 FtpSession = new ComputerSession
 FtpSession.ftpshell = null
-FtpSession.activate = function()
-    FtpShell.activate(FtpSession.ftpshell)
+FtpSession.activate = function(hanlder)
+    FtpShell.activate(hanlder)
 end function
 FtpSession.type = function()
     return "ftpShell"

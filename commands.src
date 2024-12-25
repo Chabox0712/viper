@@ -1613,12 +1613,29 @@ termCommandHandler = function(params, extensionMediator)
     handler.activate()
 end function
 commandManager.registerCommand(Command.New({
-    "name": "term",
-    "description": "Go active shell",
+    "name": "shell",
+    "description": "Go active on shell",
     "parameters": [],
     "callback": @termCommandHandler,
     "permissions": {
         "object": "shell"
+    }
+}))
+
+ftpShellCommandHanlder = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    
+    FtpSession.activate(handler.ftpshell)
+end function
+commandManager.registerCommand(Command.New({
+    "name": "ftpshell",
+    "description": "Go active on ftpShell",
+    "parameters": [],
+    "callback": @ftpShellCommandHanlder,
+    "permissions": {
+        "object": "ftpShell"
     }
 }))
 
