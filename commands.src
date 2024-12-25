@@ -951,9 +951,8 @@ ftpCommandHanlder = function(params, extensionMediator)
             end if
 
             if(typeof(get_custom_object.ftp_shell) == "ftpshell")then
-                print("Obtaining computerObject form ftpshellObject.")
                 print("Done.")
-                session = sessionManager.addSession(get_custom_object.ftp_shell.host_computer, {})
+                session = sessionManager.addSession(handler.toFtp(get_custom_object.ftp_shell), {})
                 sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
             else
                 print("Error occured.")
