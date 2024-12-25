@@ -29,7 +29,6 @@ Session.New = function (handler, data)
     if handler isa Computer then handler = ComputerSession.New(handler)
     if handler isa Shell then handler = ShellSession.New(handler)
     if handler isa FtpShell then handler = FtpSession.New(handler)
-print(handler)
     if not(handler isa ShellSession) and not(handler isa ComputerSession) and not(handler isa FileSession) and not(handler isa FtpSession) then return Error.New("Invalid session handler")
 
     result.handler = handler

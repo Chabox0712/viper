@@ -1637,7 +1637,7 @@ getCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "get",
-    "description": "Get a file from the pivot",
+    "description": "Get a file from the pivot via active shell",
     "parameters": [
         Parameter.New({
             "name": "fromPath",
@@ -1652,6 +1652,42 @@ commandManager.registerCommand(Command.New({
     "callback": @getCommandHandler,
     "permissions": {
         "object": "shell"
+    }
+}))
+
+ftpDonwload = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    pivotSession = sessionManager.pivotSession
+    pivotHandler = pivotSession.handler
+    currentSession = sessionManager.currentSession
+    currentHandler = currentSession.handler
+    fromPath = params.fromPath
+    toPath = params.toPath
+
+    if(fromPath == ".")then fromPath = currentHandler.path
+    if(toPath == ".")then toPath = pivotHandler.path
+
+    //result = pivotHandler.getFileFrom(toPath, fromPath, currentHandler)
+    result = FtpShell.transferFile(fromPath, toPath, pivotHandler.shell.shell, currentHandler.ftpshell.ftpshell)
+    if result isa Error then return result
+end function
+commandManager.registerCommand(Command.New({
+    "name": "download",
+    "description": "Get a file from the pivot via ftpShell",
+    "parameters": [
+        Parameter.New({
+            "name": "fromPath",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "toPath",
+            "required": false,
+            "default": "."
+        })
+    ],
+    "callback": @ftpDonwload,
+    "permissions": {
+        "object": "ftpShell"
     }
 }))
 
@@ -1670,7 +1706,7 @@ putCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "put",
-    "description": "Put a file to the pivot",
+    "description": "Put a file to the pivot via active shell",
     "parameters": [
         Parameter.New({
             "name": "fromPath",
@@ -1685,6 +1721,43 @@ commandManager.registerCommand(Command.New({
     "callback": @putCommandHandler,
     "permissions": {
         "object": "shell"
+    }
+}))
+
+ftpPutCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    pivotSession = sessionManager.pivotSession
+    pivotHandler = pivotSession.handler
+    currentSession = sessionManager.currentSession
+    currentHandler = currentSession.handler
+
+    fromPath = params.fromPath
+    toPath = params.toPath
+
+    if(fromPath == ".")then fromPath = pivotHandler.path
+    if(toPath == ".")then toPath = currentHandler.path
+
+    //result = pivotHandler.putFileTo(fromPath, toPath, currentHandler)
+    result = FtpShell.transferFile(fromPath, toPath, currentHandler.ftpshell.ftpshell, currentHandler.ftpshell.ftpshell)
+    if result isa Error then return result
+end function
+commandManager.registerCommand(Command.New({
+    "name": "send",
+    "description": "Put a file to the pivot via ftpShell",
+    "parameters": [
+        Parameter.New({
+            "name": "fromPath",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "toPath",
+            "required": false,
+            "default": "."
+        })
+    ],
+    "callback": @ftpPutCommandHandler,
+    "permissions": {
+        "object": "ftpShell"
     }
 }))
 

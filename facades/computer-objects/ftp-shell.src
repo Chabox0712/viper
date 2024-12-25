@@ -3,9 +3,11 @@ import_code("./computer.src")
 
 FtpShell = {}
 FtpShell.ftpshell = null
-FtpShell.transferFile = function(fileLocation, transferFolderLocation, otherShell)
-    result = self.ftpshell.put(fileLocation, transferFolderLocation, otherShell.shell)
-    if typeof(result) == "string" then return Error.New(result)
+FtpShell.transferFile = function(fileLocation, transferFolderLocation, otherShell, ftpShell)
+    fileLocation = Computer.New(otherShell.host_computer).getFile(fileLocation)
+    transferFolderLocation = Computer.New(ftpShell.host_computer).getFile(transferFolderLocation)
+    result = ftpShell.put(fileLocation.path, transferFolderLocation.path, otherShell)
+    if typeof(result) == "string" then return Error.New(ftpShell)
     return result
 end function
 FtpShell.getComputer = function(shell)

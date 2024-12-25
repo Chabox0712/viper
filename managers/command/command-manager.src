@@ -61,7 +61,6 @@ CommandManager.checkPermissions = function(command)
     if not(self.checkPrivilege(privilege,command.permissions.privilege)) then return Error.New("You do not have the required privilege to run this command")
 end function
 CommandManager.checkObject = function(currentObject, requiredObject)
-    print(requiredObject)
     if requiredObject == null then return true
     if requiredObject == "shell" and currentObject == "shell" then return true
     if requiredObject == "ftpShell" and currentObject == "ftpShell" then return true

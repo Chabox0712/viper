@@ -12,7 +12,7 @@ FtpSession.type = function()
     return "ftpShell"
 end function
 FtpSession.New = function(shell)
-    result = new ShellSession
+    result = new FtpSession
     result.ftpshell = shell
     result.computer = FtpShell.getComputer(result.ftpshell)
     result.root = climbFileToRoot(result.computer.getFile("/"))
