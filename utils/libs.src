@@ -1,28 +1,60 @@
 libs = {}
+libs.text = function(file)
+    if(typeof(file) != "file")then return print("File not found")
+    content = file.get_content.split(char(10))
+    while(true)
+        clear_screen
+        print("Usage:\n")
+        print(":d: Delete last line")
+        print(":q: Quit write session without print content")
+        print(":wq: Quit write session and print content in " + file.path)
+        i = 0
+        line_content = []
+        for line in content
+            line_content = line_content + line.split("\n")
+        end for
+        content = line_content
+        for oldline in content
+            i = i + 1
+            print("- " + oldline)
+        end for
+        line = user_input("- ")
+        if line.trim == ":d" then
+            content.pop
+            continue
+        end if
+        if line.trim == ":wq" or line == ":q" then
+            if line.trim == ":q" then return
+            return file.set_content(content.join("\n"))
+        end if
+        content.push(line)
+    end while
+end function
 libs.ftpCode = "
-credentials = params[0].split(""@"")
-user = credentials[0]
-password = credentials[1]
-port = 21
-if params.len == 3 then port = params[2].to_int
-if typeof(port) != ""number"" then exit(""Invalid port: "" + port)
-print(""Connecting..."")
+    credentials = params[0].split(""@"")
+    user = credentials[0]
+    password = credentials[1]
+    port = 21
+    if params.len == 3 then port = params[2].to_int
+    if typeof(port) != ""number"" then exit(""Invalid port: "" + port)
+    print(""Connecting..."")
 
-if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
-    passwords = get_custom_object.passwords
-    for pass in passwords 
-        ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
-        if(typeof(ftp_shell) == ""ftpshell"") then break
-    end for
-else
-    ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
-end if
+    if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
+        passwords = get_custom_object.passwords
+        for pass in passwords 
+            ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
+            if(typeof(ftp_shell) == ""ftpshell"") then break
+        end for
+    else
+        ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
+    end if
 
-if ftp_shell then
-	get_custom_object.ftp_shell = ftp_shell
-else
-	get_custom_object.ftp_shell = ""error""	
-end if"
+    if ftp_shell then
+        get_custom_object.ftp_shell = ftp_shell
+    else
+        get_custom_object.ftp_shell = ""error""	
+    end if
+"
 libs.zenmap = "//code
     computerObject = get_shell().host_computer
     params = params[0]

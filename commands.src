@@ -124,6 +124,35 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+vimCommandHandler = function(params,extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    filePath = params.filePath
+    fileObject = handler.current.file
+
+    file = libs.getFile(filePath, fileObject)
+    if(not typeof(file) == "file")then return print("No file found at ~ "+filePath+" ~")
+    if(libs.typeofFile(file) == "txt")then
+        libs.text(file)
+    else
+        return print("Error file "+file.path+" is ~ "+libs.typeofFile(file)+" ~")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "vim",
+    "description": "vim version - in-built text editor by @Chabox",
+    "parameters": [
+        Parameter.New({
+        "name": "filePath",
+        "required": true,
+    })],
+    "callback": @vimCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
 hashdumpCommandHandler = function(params,extensionMediator)
     nametoFind = ["Mail.txt","Bank.txt","passwd"]//target file scope
     libMannager = extensionMediator.getExtension("libManager")
@@ -2159,7 +2188,7 @@ findlibCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "findlib",
-    "description": "Finds a library",
+    "description": "Finds a library ""kernel_router"", ""ssh"", ""ftp"", ""http"", ""rshell"", ""smtp"", ""employees"", ""cam"", ""repository""",
     "parameters": [
         Parameter.New({
             "name": "type",
@@ -2244,18 +2273,21 @@ helpCommandHandler = function(params, extensionMediator)
         "name": "mx",
         "description": "upload metaxploit to victim",
         "parameters": "",
+        "object": "shell",
         "hasPermissions": "guest"
     }
     addmxCommand = {
         "name": "addmx",
         "description": "add uploaded mx library",
         "parameters": "",
+        "object": "shell",
         "hasPermissions": "guest"
     }
     rootCommand = {
         "name": "root",
         "description": "run dictionary attack on victim computer using jumpfile",
         "parameters": "",
+        "object": "shell",
         "hasPermissions": "guest"
     }
     commandsList.push(mxCommand)
