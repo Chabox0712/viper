@@ -2159,8 +2159,16 @@ findlibCommandHandler = function(params, extensionMediator)
     if(not get_shell.host_computer.is_network_active)then return("No internet access.")
 
     validTypes = ["kernel_router", "ssh", "ftp", "http", "rshell", "smtp", "employees", "cam", "repository"]
+    
+    isValid = false
 
-    if validTypes.hasIndex(type) == null then return Error.New("Invalid type")
+    for t in validTypes
+        if(t == type)then
+            isValid = true
+        end if
+    end for
+
+    if not isValid then return Error.New("Invalid type")
 
     found = false
     while found == false

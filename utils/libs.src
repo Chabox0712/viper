@@ -1,6 +1,19 @@
 libs = {}
+libs.set_content = function(file, content)
+    if(typeof(file) == "file")then
+        x = file.set_content(content)
+        if(not x == 1)then
+           return print(x)
+        else
+           return print("Content set.")
+        end if
+    else
+       return print("error file Object not found")
+    end if
+end function
 libs.vim = function(file)
     if(typeof(file) != "file")then return print("File not found")
+    if(not file.has_permission("r"))then return print("Permission Denied.")
     content = file.get_content.split(char(10))
     while(true)
         clear_screen
@@ -14,6 +27,7 @@ libs.vim = function(file)
             line_content = line_content + line.split("\n")
         end for
         content = line_content
+        //print(content)// debugging
         for oldline in content
             i = i + 1
             print("- " + oldline)
@@ -25,7 +39,7 @@ libs.vim = function(file)
         end if
         if line.trim == ":wq" or line == ":q" then
             if line.trim == ":q" then return
-            return file.set_content(content.join("\n"))
+            return libs.set_content(file, content.join("\n"))
         end if
         content.push(line)
     end while
