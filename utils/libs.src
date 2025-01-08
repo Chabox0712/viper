@@ -1,5 +1,5 @@
 libs = {}
-libs.text = function(file)
+libs.vim = function(file)
     if(typeof(file) != "file")then return print("File not found")
     content = file.get_content.split(char(10))
     while(true)

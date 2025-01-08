@@ -134,7 +134,7 @@ vimCommandHandler = function(params,extensionMediator)
     file = libs.getFile(filePath, fileObject)
     if(not typeof(file) == "file")then return print("No file found at ~ "+filePath+" ~")
     if(libs.typeofFile(file) == "txt")then
-        libs.text(file)
+        libs.vim(file)
     else
         return print("Error file "+file.path+" is ~ "+libs.typeofFile(file)+" ~")
     end if
