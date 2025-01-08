@@ -2168,7 +2168,7 @@ findlibCommandHandler = function(params, extensionMediator)
         end if
     end for
 
-    if not isValid then return Error.New("Invalid type "+str(type))
+    if not isValid then return Error.New("Invalid type "+str(type)+char(10)+"Use ""kernel_router"", ""ssh"", ""ftp"", ""http"", ""rshell"", ""smtp"", ""employees"", ""cam"", ""repository""")
 
     found = false
     while found == false
@@ -2196,7 +2196,7 @@ findlibCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "findlib",
-    "description": "Finds a library ""kernel_router"", ""ssh"", ""ftp"", ""http"", ""rshell"", ""smtp"", ""employees"", ""cam"", ""repository""",
+    "description": "Finds a library.",
     "parameters": [
         Parameter.New({
             "name": "type",
