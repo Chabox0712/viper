@@ -2168,7 +2168,7 @@ findlibCommandHandler = function(params, extensionMediator)
         end if
     end for
 
-    if not isValid then return Error.New("Invalid type")
+    if not isValid then return Error.New("Invalid type "+str(type))
 
     found = false
     while found == false
