@@ -6,6 +6,10 @@ FtpShell.ftpshell = null
 FtpShell.transferFile = function(fileLocation, transferFolderLocation, otherShell, ftpShell)
     fileLocation = Computer.New(otherShell.host_computer).getFile(fileLocation)
     transferFolderLocation = Computer.New(ftpShell.host_computer).getFile(transferFolderLocation)
+
+    if(transferFolderLocation isa Error)then return Error.New(transferFolderLocation.message)
+    if(fileLocation isa Error)then return Error.New(fileLocation.message)
+
     result = ftpShell.put(fileLocation.path, transferFolderLocation.path, otherShell)
     if typeof(result) == "string" then return Error.New(ftpShell)
     return result
