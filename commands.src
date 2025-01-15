@@ -1945,7 +1945,16 @@ commandManager.registerCommand(Command.New({
 }))
 
 exitCommandHandler = function(params, extensionMediator)
-    exit()
+    input = user_input("Are you sure you want to exit # ", false, true)
+    while(true)
+        if((typeof(input) == "string")and((input == "y")or(input == "Y")or(input == "n")or(input == "N")))then
+            if(input == "n" or input == "N")then return print(char(10)+"Everything is restored.")
+            print(char(10)+"Bye.")
+            exit()
+        else
+            input = user_input(char(10)+"Enter valid input (y/Y/n/N) # ", false, true)
+        end if
+    end while
 end function
 commandManager.registerCommand(Command.New({
     "name": "exit",
