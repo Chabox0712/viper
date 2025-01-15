@@ -1678,6 +1678,9 @@ getCommandHandler = function(params, extensionMediator)
     fromPath = params.fromPath
     toPath = params.toPath
 
+    if(fromPath == ".")then fromPath = pivotHandler.path
+    if(toPath == ".")then toPath = currentHandler.path
+
     result = pivotHandler.getFileFrom(toPath, fromPath, currentHandler)
     if result isa Error then return result
 end function
@@ -1746,6 +1749,9 @@ putCommandHandler = function(params, extensionMediator)
 
     fromPath = params.fromPath
     toPath = params.toPath
+
+    if(fromPath == ".")then fromPath = pivotHandler.path
+    if(toPath == ".")then toPath = currentHandler.path
 
     result = pivotHandler.putFileTo(fromPath, toPath, currentHandler)
     if result isa Error then return result

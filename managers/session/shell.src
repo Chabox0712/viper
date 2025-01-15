@@ -29,19 +29,19 @@ end function
 ShellSession.getFileFrom = function(path, targetPath, otherSession)
     folder = self.getFile(path)
     if folder isa Error then return folder
-    if folder.type != "FOLDER" then return Error.New("Path is not a folder")
+    //if folder.type != "FOLDER" then return Error.New("Path is not a folder")
     file = otherSession.getFile(targetPath)
     if file isa Error then return file
-    if file.type != "FILE" then return Error.New("Target path is not a file")
+   // if file.type != "FILE" then return Error.New("Target path is not a file")
     return otherSession.shell.transferFile(file.path(), folder.path(), self.shell)
 end function
 ShellSession.putFileTo = function(path, targetPath, otherSession)
     file = self.getFile(path)
     if file isa Error then return file
-    if file.type != "FILE" then return Error.New("Path is not a file")
+    //if file.type != "FILE" then return Error.New("Path is not a file")
     folder = otherSession.getFile(targetPath)
     if folder isa Error then return folder
-    if folder.type != "FOLDER" then return Error.New("Target path is not a folder")
+   // if folder.type != "FOLDER" then return Error.New("Target path is not a folder")
     return self.shell.transferFile(file.path(), folder.path(), otherSession.shell)
 end function
 ShellSession.activate = function()
