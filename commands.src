@@ -1962,6 +1962,7 @@ commandManager.registerCommand(Command.New({
     "parameters": [],
     "callback": @exitCommandHandler
 }))
+commandManager.addAlias("?", "help")
 commandManager.addAlias("mx", "put /lib/metaxploit.so")
 commandManager.addAlias("root", "sudo root dict .jumpfile")
 commandManager.addAlias("addmx", "addlib metaxploit.so .jumpfile")
@@ -2298,9 +2299,6 @@ helpCommandHandler = function(params, extensionMediator)
 
     print(char(10)+"<u>Aliases</u>"+char(10))
     viperUi.alias(commandManager.aliases)
-    //for command in commandManager.aliases
-    //    viperUi.alias(command)
-    //end for
 end function
 commandManager.registerCommand(Command.New({
     "name": "help",
