@@ -404,6 +404,31 @@ ViperUi.help = function (commands)
 
     self.displayTable(keys, items)
 end function
+ViperUi.alias = function(commands)
+    themeManger = self.mediator.getExtension("themeManager")
+
+    keys = ["key", "description" ]
+
+    handleGetItem = function(command)
+        result = {}
+        commandNameColor = @themeManger.color(THEME_COLORS.SUCCESS)
+        result.command = {
+            "text": command.key,
+            "color": @commandNameColor
+        }
+        result.description = {
+            "text": command.value,
+            "color": @themeManger.color(THEME_COLORS.TEXT)
+        }
+        return result
+    end function
+    output = "<color="+COLORS.GRAY+">"+"ALIAS COMMAND"
+    for command in commands
+        output = output + char(10) +"<color="+COLORS.GREEN+">"+command.key + " " + "<color="+COLORS.BLUE+">"+ str(command.value.replace(" ", "_"))
+    end for
+
+    print(format_columns(output))
+end function
 ViperUi.fileSystem = function(file, depth = 0)
     seperator = ""
     for i in range(0, depth - 1)

@@ -2292,31 +2292,15 @@ helpCommandHandler = function(params, extensionMediator)
         }
         commandsList.push(result)
     end for
-    mxCommand = {
-        "name": "mx",
-        "description": "upload metaxploit to victim",
-        "parameters": "",
-        "object": "shell",
-        "hasPermissions": "guest"
-    }
-    addmxCommand = {
-        "name": "addmx",
-        "description": "add uploaded mx library",
-        "parameters": "",
-        "object": "shell",
-        "hasPermissions": "guest"
-    }
-    rootCommand = {
-        "name": "root",
-        "description": "run dictionary attack on victim computer using jumpfile",
-        "parameters": "",
-        "object": "shell",
-        "hasPermissions": "guest"
-    }
-    commandsList.push(mxCommand)
-    commandsList.push(rootCommand)
-    commandsList.push(addmxCommand)
+
+    print(char(10)+"<u>Commands</u>"+char(10))
     viperUi.help(commandsList)
+
+    print(char(10)+"<u>Aliases</u>"+char(10))
+    viperUi.alias(commandManager.aliases)
+    //for command in commandManager.aliases
+    //    viperUi.alias(command)
+    //end for
 end function
 commandManager.registerCommand(Command.New({
     "name": "help",
