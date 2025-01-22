@@ -1,4 +1,204 @@
 libs = {}
+libs.set_content = function(file, content)
+    if(typeof(file) == "file")then
+        x = file.set_content(content)
+        if(not x == 1)then
+           return print(x)
+        else
+           return print("Content set.")
+        end if
+    else
+       return print("error file Object not found")
+    end if
+end function
+libs.vim = function(file)
+    if(typeof(file) != "file")then return print("File not found")
+    if(not file.has_permission("r"))then return print("Permission Denied.")
+    content = file.get_content.split(char(10))
+    while(true)
+        clear_screen
+        print("Usage:\n")
+        print(":d: Delete last line")
+        print(":q: Quit write session without print content")
+        print(":wq: Quit write session and print content in " + file.path)
+        i = 0
+        line_content = []
+        for line in content
+            line_content = line_content + line.split("\n")
+        end for
+        content = line_content
+        //print(content)// debugging
+        for oldline in content
+            i = i + 1
+            print("- " + oldline)
+        end for
+        line = user_input("- ")
+        if line.trim == ":d" then
+            content.pop
+            continue
+        end if
+        if line.trim == ":wq" or line == ":q" then
+            if line.trim == ":q" then return
+            return libs.set_content(file, content.join("\n"))
+        end if
+        content.push(line)
+    end while
+end function
+libs.ftpCode = "
+    credentials = params[0].split(""@"")
+    user = credentials[0]
+    password = credentials[1]
+    port = 21
+    if params.len == 3 then port = params[2].to_int
+    if typeof(port) != ""number"" then exit(""Invalid port: "" + port)
+    print(""Connecting..."")
+
+    if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
+        passwords = get_custom_object.passwords
+        for pass in passwords 
+            ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
+            if(typeof(ftp_shell) == ""ftpshell"") then break
+        end for
+    else
+        ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
+    end if
+
+    if ftp_shell then
+        get_custom_object.ftp_shell = ftp_shell
+    else
+        get_custom_object.ftp_shell = ""error""	
+    end if
+"
+libs.zenmap = "//code
+    computerObject = get_shell().host_computer
+    params = params[0]
+    if not is_valid_ip(params) then exit(""Invalid-IP."")
+    if not computerObject.is_network_active then  exit(""nmap: No internet access."")
+
+    ipAddress = params
+    isLanIp = is_lan_ip(ipAddress)
+
+    if isLanIp then
+        router = get_router;
+    else 
+        router = get_router(ipAddress)
+    end if
+
+    if router == null then exit(""nmap: ip address not found."")
+    ports = null
+
+    print(char(10)+""<b>Router-Version : </b>""+router.kernel_version)
+    print(""<b>Public-Ip : </b>""+router.public_ip)
+
+    if not isLanIp then
+        ports = router.used_ports
+    else
+        ports = router.device_ports(ipAddress)
+    end if
+
+    info = ""PORT STATE SERVICE VERSION LAN""   
+    print(""\nStarting Zenmap v2.35 at "" + current_date)
+    print(""Interesting ports on "" + params + ""\n"")
+
+    for port in ports
+        if(typeof(port) != ""port"")then continue
+        service_info = router.port_info(port)
+        lan_ips = port.get_lan_ip
+        port_status = ""open""
+
+        if(port.is_closed and not isLanIp) then
+            port_status = ""closed""
+        end if
+        info = info + ""\n"" + port.port_number + "" "" + port_status + "" "" + service_info + "" "" + lan_ips
+    end for
+
+    if(typeof(ports) == ""string"")or(ports == null)then
+		if(ports == null)then ports = ""no ports found.""
+		print(ports+char(10))
+    else
+        if(ports.len == 0) then
+            print(""Scan finished. No open ports.""+char(10))
+        else
+            print(format_columns(info) + ""\n"")
+        end if
+    end if
+
+    output = ""ACTION PORT SOURCE_IP DESTINATION_IP""
+    firewallrouter = get_router(ipAddress)
+    if(not firewallrouter) then firewallrouter = get_router
+
+    for rules in firewallrouter.firewall_rules
+        output = output + ""\n"" + rules
+    end for
+
+    print(""Firewall Rules.""+char(10))
+	if(firewallrouter.firewall_rules.len == 0)then
+        print(""no firewall rules""+char(10))
+    else
+        print(format_columns(output) + ""\n"")
+    end if
+"
+libs.nano =  function(textFile)
+    if not textFile then return print("File not found.")
+    if textFile.is_binary or textFile.is_folder then return print("File not text.")
+	if not textFile.has_permission("w") then return print("Permission denied.")
+    text = textFile.get_content
+	lines = ""
+    if text then lines = text.split(char(10))
+    while true
+        clear_screen
+        for i in lines.indexes
+            line = "<color=orange>" + str(i + 1) + "</color>" + char(9)
+            line = line + lines[i]
+            print(line)
+        end for
+        print("x: save and exit, s: save, q: exit, i: insert, m: modify, r: remove")
+        option = user_input("> ", false, true)
+        if option.lower == "s" or option.lower == "x" then
+			if not textFile.has_permission("r") then
+				if (option.lower == "x") then return print("Permission denied")
+				print("Permission denied")
+				wait(0.5)
+				continue
+			end if
+			textFile.set_content(lines.join(char(10)))
+		end if
+        if option.lower == "q" or option.lower == "x" then break
+        if option.lower == "i" then
+            print("specify line number, c to cancel.")
+            lineNum = user_input("> ").to_int
+            newText = user_input("input text:" + char(10))
+            if not lineNum isa number then continue
+            if lineNum >= lines.len then lineNum = lines.len
+            if lineNum < 0 then lineNum = 0
+            lines = lines[:lineNum] + [newText] + lines[lineNum:]
+            continue
+        end if
+        if option.lower == "m" then
+            print("specify line number, c to cancel.")
+            lineNum = user_input("> ").to_int
+            newText = user_input("input text:" + char(10))
+            if not lineNum isa number then continue
+            if lineNum > lines.len then lineNum = lines.len
+            if lineNum < 1 then lineNum = 1
+            lines[lineNum - 1] = newText
+            continue
+        end if
+        if option.lower == "r" then
+            print("specify line number, c to cancel.")
+            lineNum = user_input("> ").to_int
+            if not lineNum isa number then continue
+            if lineNum < 1 or lineNum > lines.len then continue
+            if lines.len == 1 then
+                lines[0] = ""
+                continue
+            end if
+            lines = lines[:lineNum - 1] + lines[lineNum:]
+            continue
+        end if
+    end while
+    return print("Done.")
+end function
 libs.corruptLog = function(fileObject) //overwrite system.log by copy the smallest file to that dir
     while fileObject.parent
         fileObject = fileObject.parent

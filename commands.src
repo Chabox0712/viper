@@ -66,7 +66,7 @@ vulnCommandHandler = function(params, extensionMediator)
     fileObject = handler.current.file
     allFiles = libs.allFiles(fileObject)
     perm = params.permission
-    output = "TYPE PATH FILE_PERM USER_PERM SIZE"
+    output = "FILE_TYPE FILE_PATH FILE_PERM USER_PERM FILE_SIZE"
     for file in allFiles
         if(perm == "x")then
             if(libs.typeofFile(file)!= "bin")then continue
@@ -82,7 +82,7 @@ vulnCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "vuln",
-    "description": "Get vulnerable File / Folder Permissions. params [r] [x] [w]",
+    "description": "Get vulnerable Files or Folders by their Permissions. permission [r] [x] [w]",
     "parameters": [
         Parameter.New({
         "name": "permission",
@@ -90,6 +90,64 @@ commandManager.registerCommand(Command.New({
         "default": "r"
     })],
     "callback": @vulnCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
+nanoCommandHandler = function(params,extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    filePath = params.filePath
+    fileObject = handler.current.file
+
+    file = libs.getFile(filePath, fileObject)
+    if(not typeof(file) == "file")then return print("No file found at ~ "+filePath+" ~")
+    if(libs.typeofFile(file) == "txt")then
+        libs.nano(file)
+    else
+        return print("Error file "+file.path+" is ~ "+libs.typeofFile(file)+" ~")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "nano",
+    "description": "In-built text editor by @Chabox",
+    "parameters": [
+        Parameter.New({
+        "name": "filePath",
+        "required": true,
+    })],
+    "callback": @nanoCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
+vimCommandHandler = function(params,extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    filePath = params.filePath
+    fileObject = handler.current.file
+
+    file = libs.getFile(filePath, fileObject)
+    if(not typeof(file) == "file")then return print("No file found at ~ "+filePath+" ~")
+    if(libs.typeofFile(file) == "txt")then
+        libs.vim(file)
+    else
+        return print("Error file "+file.path+" is ~ "+libs.typeofFile(file)+" ~")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "vim",
+    "description": "vim version - in-built text editor by @Chabox",
+    "parameters": [
+        Parameter.New({
+        "name": "filePath",
+        "required": true,
+    })],
+    "callback": @vimCommandHandler,
     "permissions": {
         "object": "file"
     }
@@ -690,6 +748,7 @@ crackCommandHandler = function(params, extensionMediator)
     if lib == null then return Error.New("No crypto library loaded")
 
     hash = params.hash
+    if(hash.len != 32)then return print("Error invalid-hash.")
     result = lib.lib.decipher(hash)
     return result
 end function
@@ -708,6 +767,8 @@ commandManager.registerCommand(Command.New({
 nmapCommandHandler = function(params, extensionMediator)
     viperUi = extensionMediator.getExtension("viperUi")
     ip = params.ip
+
+    if(not get_shell.host_computer.is_network_active)then return("No internet access.")
 
     if ip == "random" then ip = randomIp()
 
@@ -743,6 +804,51 @@ commandManager.registerCommand(Command.New({
         })
     ],
     "callback": @nmapCommandHandler
+}))
+
+zenmapCmmandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    shellObject = handler.shell.shell
+    ip = params.ip
+    if ip == "random" then ip = randomIp()
+
+    shellObject.host_computer.touch(handler.path, "zenmap.src")
+    zenmapSorceFile = shellObject.host_computer.File(handler.path+"/zenmap.src")
+    if(libs.typeofFile(zenmapSorceFile)== "txt")then
+        zenmapSorceFile.set_content(libs.zenmap)
+        shellObject.build(zenmapSorceFile.path, handler.path, true)
+        zenmapSorceFile.delete
+        zenMapExecutable = shellObject.host_computer.File(handler.path+"/zenmap")
+        if(libs.typeofFile(zenMapExecutable) == "bin") then
+            shellObject.launch(zenMapExecutable.path, ip)
+            zenMapExecutable.delete
+        else
+            return print("Error occured can't-find binary file")
+        end if
+    else
+        return print("Error occured source-file not found")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "zenmap",
+    "description": "Creates an executable for scanning and deletes it when done.Best for running scan locally",
+    "parameters": [
+        OptionsParameter.New({
+            "name": "ip",
+            "required": false,
+            "options": {
+                "ip": "ip",
+                "random": "random"
+            },
+            "default": "random"
+        })
+    ],
+    "callback": @zenmapCmmandHandler,
+    "permissions": {
+        "object": "shell"
+    }
 }))
 
 whoisCommandHandler = function(params, extensionMediator)
@@ -802,7 +908,7 @@ sshCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "ssh",
-    "description": "Login to a computer",
+    "description": "Login to a computer via ssh",
     "parameters": [
         Parameter.New({
             "name": "ip",
@@ -838,6 +944,115 @@ commandManager.registerCommand(Command.New({
         })
     ],
     "callback": @sshCommandHandler,
+    "permissions": {
+        "object": "shell"
+    }
+}))
+
+ftpCommandHanlder = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    ipAddress = params.ipAddress
+    user = params.username
+    password = params.password
+    port = params.port
+    
+    shellObject = handler.shell.shell
+    computerObject = shellObject.host_computer
+
+    computerObject.touch(current_path, "ftpCode.src")
+    ftpSourceFile = computerObject.File(current_path+"/ftpCode.src")
+
+    if(typeof(ftpSourceFile) == "file")then
+        ftpSourceFile.set_content(libs.ftpCode)
+        shellObject.build(current_path+"/ftpCode.src", current_path)
+        ftpSourceFile.delete
+        ftpExeFile = computerObject.File(current_path+"/ftpCode")
+        if(typeof(ftpExeFile) == "file")then
+            if password == "dict" then
+                dictionaryManager = extensionMediator.getExtension("dictionaryManager")
+                get_custom_object.passwords = [] + dictionaryManager.passwords
+                print "Trying dictionary attack"
+                shellObject.launch(ftpExeFile.path, user+"@"+"dict"+" "+ipAddress+" "+port)
+            else
+                shellObject.launch(ftpExeFile.path, user+"@"+password+" "+ipAddress+" "+port)
+            end if
+
+            if(typeof(get_custom_object.ftp_shell) == "ftpshell")then
+                print("Done.")
+                session = sessionManager.addSession(handler.toFtp(get_custom_object.ftp_shell), {})
+                sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
+            else
+                print("Error occured.")
+            end if
+            ftpExeFile.delete
+        else
+            return print("Build failed.")
+        end if
+    else
+        return print("ftpSourceFile not found.")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "ftp",
+    "description": "Login to a computer via ftp (NOTE:This gets a computer object if successfull)",
+    "parameters": [
+        Parameter.New({
+            "name": "ipAddress",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "username",
+            "required": false,
+            "default": "root"
+        }),
+        Parameter.New({
+            "name": "password",
+            "required": false,
+            "options": {
+                "dict": "dict",
+            },
+            "default": "dict"
+        }),
+        Parameter.New({
+            "name": "port",
+            "required": false,
+            "type": PARAMETER_TYPES.NUMBER,
+            "default": 21
+        }),
+    ],
+    "callback": @ftpCommandHanlder,
+    "permissions": {
+        "object": "shell"
+    }
+}))
+
+pingCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    ipAddress = params.ipAddress
+
+    pingResult = handler.shell.shell.ping(ipAddress)
+    if(pingResult == 1)then
+        return print("Ping Successfull.")
+    else if(pingResult == 0)then
+        return print("Ping Failed.")
+    else if(typeof(pingResult) == "string")then
+        return print(pingResult)
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "ping",
+    "description": "ping an ip address to see response",
+    "parameters": [
+        Parameter.New({
+            "name": "ipAddress",
+            "required": true
+        }),
+    ],
+    "callback": @pingCommandHandler,
     "permissions": {
         "object": "shell"
     }
@@ -1427,12 +1642,29 @@ termCommandHandler = function(params, extensionMediator)
     handler.activate()
 end function
 commandManager.registerCommand(Command.New({
-    "name": "term",
-    "description": "Go active shell",
+    "name": "shell",
+    "description": "Go active on shell",
     "parameters": [],
     "callback": @termCommandHandler,
     "permissions": {
         "object": "shell"
+    }
+}))
+
+ftpShellCommandHanlder = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    
+    FtpSession.activate(handler.ftpshell)
+end function
+commandManager.registerCommand(Command.New({
+    "name": "ftpshell",
+    "description": "Go active on ftpShell",
+    "parameters": [],
+    "callback": @ftpShellCommandHanlder,
+    "permissions": {
+        "object": "ftpShell"
     }
 }))
 
@@ -1446,12 +1678,15 @@ getCommandHandler = function(params, extensionMediator)
     fromPath = params.fromPath
     toPath = params.toPath
 
+    if(fromPath == ".")then fromPath = pivotHandler.path
+    if(toPath == ".")then toPath = currentHandler.path
+
     result = pivotHandler.getFileFrom(toPath, fromPath, currentHandler)
     if result isa Error then return result
 end function
 commandManager.registerCommand(Command.New({
     "name": "get",
-    "description": "Get a file from the pivot",
+    "description": "Get a file from the pivot via active shell",
     "parameters": [
         Parameter.New({
             "name": "fromPath",
@@ -1469,6 +1704,42 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+ftpDonwload = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    pivotSession = sessionManager.pivotSession
+    pivotHandler = pivotSession.handler
+    currentSession = sessionManager.currentSession
+    currentHandler = currentSession.handler
+    fromPath = params.fromPath
+    toPath = params.toPath
+
+    if(fromPath == ".")then fromPath = currentHandler.path
+    if(toPath == ".")then toPath = pivotHandler.path
+
+    //result = pivotHandler.getFileFrom(toPath, fromPath, currentHandler)
+    result = FtpShell.transferFile(fromPath, toPath, pivotHandler.shell.shell, currentHandler.ftpshell.ftpshell)
+    if result isa Error then return result
+end function
+commandManager.registerCommand(Command.New({
+    "name": "download",
+    "description": "Get a file from the pivot via ftpShell",
+    "parameters": [
+        Parameter.New({
+            "name": "fromPath",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "toPath",
+            "required": false,
+            "default": "."
+        })
+    ],
+    "callback": @ftpDonwload,
+    "permissions": {
+        "object": "ftpShell"
+    }
+}))
+
 putCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     pivotSession = sessionManager.pivotSession
@@ -1479,12 +1750,15 @@ putCommandHandler = function(params, extensionMediator)
     fromPath = params.fromPath
     toPath = params.toPath
 
+    if(fromPath == ".")then fromPath = pivotHandler.path
+    if(toPath == ".")then toPath = currentHandler.path
+
     result = pivotHandler.putFileTo(fromPath, toPath, currentHandler)
     if result isa Error then return result
 end function
 commandManager.registerCommand(Command.New({
     "name": "put",
-    "description": "Put a file to the pivot",
+    "description": "Put a file to the pivot via active shell",
     "parameters": [
         Parameter.New({
             "name": "fromPath",
@@ -1499,6 +1773,43 @@ commandManager.registerCommand(Command.New({
     "callback": @putCommandHandler,
     "permissions": {
         "object": "shell"
+    }
+}))
+
+ftpPutCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    pivotSession = sessionManager.pivotSession
+    pivotHandler = pivotSession.handler
+    currentSession = sessionManager.currentSession
+    currentHandler = currentSession.handler
+
+    fromPath = params.fromPath
+    toPath = params.toPath
+
+    if(fromPath == ".")then fromPath = pivotHandler.path
+    if(toPath == ".")then toPath = currentHandler.path
+
+    //result = pivotHandler.putFileTo(fromPath, toPath, currentHandler)
+    result = FtpShell.transferFile(fromPath, toPath, currentHandler.ftpshell.ftpshell, currentHandler.ftpshell.ftpshell)
+    if result isa Error then return result
+end function
+commandManager.registerCommand(Command.New({
+    "name": "send",
+    "description": "Put a file to the pivot via ftpShell",
+    "parameters": [
+        Parameter.New({
+            "name": "fromPath",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "toPath",
+            "required": false,
+            "default": "."
+        })
+    ],
+    "callback": @ftpPutCommandHandler,
+    "permissions": {
+        "object": "ftpShell"
     }
 }))
 
@@ -1634,7 +1945,16 @@ commandManager.registerCommand(Command.New({
 }))
 
 exitCommandHandler = function(params, extensionMediator)
-    exit()
+    input = user_input("Are you sure you want to exit # ", false, true)
+    while(true)
+        if((typeof(input) == "string")and((input == "y")or(input == "Y")or(input == "n")or(input == "N")))then
+            if(input == "n" or input == "N")then return print(char(10)+"Everything is restored.")
+            print(char(10)+"Bye.")
+            exit()
+        else
+            input = user_input(char(10)+"Enter valid input (y/Y/n/N) # ", false, true)
+        end if
+    end while
 end function
 commandManager.registerCommand(Command.New({
     "name": "exit",
@@ -1642,6 +1962,7 @@ commandManager.registerCommand(Command.New({
     "parameters": [],
     "callback": @exitCommandHandler
 }))
+commandManager.addAlias("?", "help")
 commandManager.addAlias("mx", "put /lib/metaxploit.so")
 commandManager.addAlias("root", "sudo root dict .jumpfile")
 commandManager.addAlias("addmx", "addlib metaxploit.so .jumpfile")
@@ -1851,9 +2172,19 @@ findlibCommandHandler = function(params, extensionMediator)
     type = params.type
     version = params.version
 
-    validTypes = ["kernel_router", "ssh", "ftp", "http", "rshell", "smtp", "employees", "cam", "repository"]
+    if(not get_shell.host_computer.is_network_active)then return("No internet access.")
 
-    if validTypes.hasIndex(type) == null then return Error.New("Invalid type")
+    validTypes = ["kernel_router", "ssh", "ftp", "http", "rshell", "smtp", "employees", "cam", "repository"]
+    
+    isValid = false
+
+    for t in validTypes
+        if(t == type)then
+            isValid = true
+        end if
+    end for
+
+    if not isValid then return Error.New("Invalid type "+str(type)+char(10)+"Use ""kernel_router"", ""ssh"", ""ftp"", ""http"", ""rshell"", ""smtp"", ""employees"", ""cam"", ""repository""")
 
     found = false
     while found == false
@@ -1881,7 +2212,7 @@ findlibCommandHandler = function(params, extensionMediator)
 end function
 commandManager.registerCommand(Command.New({
     "name": "findlib",
-    "description": "Finds a library",
+    "description": "Finds a library.",
     "parameters": [
         Parameter.New({
             "name": "type",
@@ -1962,28 +2293,12 @@ helpCommandHandler = function(params, extensionMediator)
         }
         commandsList.push(result)
     end for
-    mxCommand = {
-        "name": "mx",
-        "description": "upload metaxploit to victim",
-        "parameters": "",
-        "hasPermissions": "guest"
-    }
-    addmxCommand = {
-        "name": "addmx",
-        "description": "add uploaded mx library",
-        "parameters": "",
-        "hasPermissions": "guest"
-    }
-    rootCommand = {
-        "name": "root",
-        "description": "run dictionary attack on victim computer using jumpfile",
-        "parameters": "",
-        "hasPermissions": "guest"
-    }
-    commandsList.push(mxCommand)
-    commandsList.push(rootCommand)
-    commandsList.push(addmxCommand)
+
+    print(char(10)+"<u>Commands</u>"+char(10))
     viperUi.help(commandsList)
+
+    print(char(10)+"<u>Aliases</u>"+char(10))
+    viperUi.alias(commandManager.aliases)
 end function
 commandManager.registerCommand(Command.New({
     "name": "help",

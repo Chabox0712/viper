@@ -63,8 +63,9 @@ end function
 CommandManager.checkObject = function(currentObject, requiredObject)
     if requiredObject == null then return true
     if requiredObject == "shell" and currentObject == "shell" then return true
-    if requiredObject == "computer" and (currentObject == "shell" or currentObject == "computer") then return true
-    if requiredObject == "file" and (currentObject == "shell" or currentObject == "computer" or currentObject == "file") then return true
+    if requiredObject == "ftpShell" and currentObject == "ftpShell" then return true
+    if requiredObject == "computer" and (currentObject == "shell" or currentObject == "computer" or (currentObject == "ftpShell")) then return true
+    if requiredObject == "file" and (currentObject == "shell" or currentObject == "computer" or currentObject == "file" or currentObject == "ftpShell") then return true
     return false
 end function
 CommandManager.checkPrivilege = function(currentPrivilege, requiredPrivilege)
