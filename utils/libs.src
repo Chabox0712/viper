@@ -1,4 +1,5 @@
 libs = {}
+<<<<<<< HEAD
 libs.set_content = function(file, content)
     if(typeof(file) == "file")then
         x = file.set_content(content)
@@ -69,6 +70,32 @@ libs.ftpCode = "
         get_custom_object.ftp_shell = ""error""	
     end if
 "
+=======
+libs.ftpCode = "
+credentials = params[0].split(""@"")
+user = credentials[0]
+password = credentials[1]
+port = 21
+if params.len == 3 then port = params[2].to_int
+if typeof(port) != ""number"" then exit(""Invalid port: "" + port)
+print(""Connecting..."")
+
+if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
+    passwords = get_custom_object.passwords
+    for pass in passwords 
+        ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
+        if(typeof(ftp_shell) == ""ftpshell"") then break
+    end for
+else
+    ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
+end if
+
+if ftp_shell then
+	get_custom_object.ftp_shell = ftp_shell
+else
+	get_custom_object.ftp_shell = ""error""	
+end if"
+>>>>>>> 42dc989d57f670f00e6672b0be7957d506633fb2
 libs.zenmap = "//code
     computerObject = get_shell().host_computer
     params = params[0]

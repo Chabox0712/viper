@@ -124,6 +124,7 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+<<<<<<< HEAD
 vimCommandHandler = function(params,extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
@@ -153,6 +154,8 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+=======
+>>>>>>> 42dc989d57f670f00e6672b0be7957d506633fb2
 hashdumpCommandHandler = function(params,extensionMediator)
     nametoFind = ["Mail.txt","Bank.txt","passwd"]//target file scope
     libMannager = extensionMediator.getExtension("libManager")
@@ -980,8 +983,14 @@ ftpCommandHanlder = function(params, extensionMediator)
             end if
 
             if(typeof(get_custom_object.ftp_shell) == "ftpshell")then
+<<<<<<< HEAD
                 print("Done.")
                 session = sessionManager.addSession(handler.toFtp(get_custom_object.ftp_shell), {})
+=======
+                print("Obtaining computerObject form ftpshellObject.")
+                print("Done.")
+                session = sessionManager.addSession(get_custom_object.ftp_shell.host_computer, {})
+>>>>>>> 42dc989d57f670f00e6672b0be7957d506633fb2
                 sessionManager.setCurrentSession(sessionManager.getSessionIndex(session))
             else
                 print("Error occured.")
