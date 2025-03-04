@@ -822,7 +822,7 @@ smartCommandHandler = function(params,extensionMediator)
     if(alarm == "enable")then
         alarm = true
     else
-        if(alarm != "disable")then print("defalt alarm set to <b>disable")
+        if(alarm != "disable")then print("default alarm set to <b>disable")
         alarm = false
     end if
 
