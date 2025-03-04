@@ -806,6 +806,92 @@ commandManager.registerCommand(Command.New({
     "callback": @nmapCommandHandler
 }))
 
+smartCommandHandler = function(params,extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    shellObject = handler.shell.shell
+    power = params.power.to_int
+    temperature = params.temperature.to_int
+    alarm = params.alarm
+
+    print(char(10) + "Power override set " + power)
+    print("Temperature override set " + temperature)
+    print("Alarm set to <b>" + alarm + char(10))
+
+    if(alarm == "enable")then
+        alarm = true
+    else
+        alarm = false
+    end if
+
+    shellObject.host_computer.touch(handler.path, "smartOverride.src")
+    zenmapSorceFile = shellObject.host_computer.File(handler.path+"/smartOverride.src")
+    if(libs.typeofFile(zenmapSorceFile)== "txt")then
+        zenmapSorceFile.set_content(libs.smartAppliane)
+        shellObject.build(zenmapSorceFile.path, handler.path, true)
+        zenmapSorceFile.delete
+        zenMapExecutable = shellObject.host_computer.File(handler.path+"/smartOverride")
+        if(libs.typeofFile(zenMapExecutable) == "bin") then
+            shellObject.launch(zenMapExecutable.path)
+            zenMapExecutable.delete
+        else
+            return print("Error occured can't-find binary file")
+        end if
+    else
+        return print("Error occured source-file not found")
+    end if
+
+    smartAppliance = get_custom_object.lib
+
+
+    if(not smartAppliance.lib)then return print("No smartappliance found.")
+    
+    smartAppliance = smartAppliance.lib
+
+    print("Model Name <b>" + smartAppliance.model)
+
+    setAlarm = smartAppliance.set_alarm(alarm)
+
+    if(setAlarm == 1)then
+        print("Alarm - Success.")
+    else
+        print("Alarm - Failed. " + setAlarm)
+    end if
+
+    overrite = smartAppliance.override_settings(power, temperature)
+
+    if(overrite == 1)then
+        print("Override Appliance Done.")
+    else
+        print("Error. " + overrite)
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "override",
+    "description": "Attemps to find and override smartAppliances (power) (temperature) (alarm)",
+    "parameters": [
+        Parameter.New({
+        "name": "power",
+        "required": false,
+        "default": "240"
+    }),
+    Parameter.New({
+        "name": "temperature",
+        "required": false,
+        "default": "1000"
+    }),
+    Parameter.New({
+        "name": "alarm",
+        "required": false,
+        "default": "disable"
+    })],
+    "callback": @smartCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
 zenmapCmmandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession

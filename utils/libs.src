@@ -1,4 +1,10 @@
 libs = {}
+libs.smartAppliane = "
+SmartAppliance = {}
+SmartAppliance.lib = include_lib(""/lib/libsmartappliance.so"")
+if(typeof(SmartAppliance.lib) == ""SmartAppliance"")then SmartAppliance.model = SmartAppliance.lib.model
+get_custom_object.lib = SmartAppliance
+"
 libs.set_content = function(file, content)
     if(typeof(file) == "file")then
         x = file.set_content(content)
