@@ -1,4 +1,35 @@
 libs = {}
+libs.code = function()
+    content = ("//Write the code bellow").split(char(10))
+    while(true)
+        clear_screen
+        print("Usage:\n")
+        print(":d: Delete last line")
+        print(":q: Quit write session")
+        print(":wq: Quit write session")
+        i = 0
+        line_content = []
+        for line in content
+            line_content = line_content + line.split(char(10))
+        end for
+        content = line_content
+        //print(content.join(char(10)))// debugging
+        for oldline in content
+            i = i + 1
+            print("- " + oldline)
+        end for
+        line = user_input("- ")
+        if line.trim == ":d" then
+            content.pop
+            continue
+        end if
+        if line.trim == ":wq" or line == ":q" then
+            if line.trim == ":q" then return content.join(char(10))
+            return content.join(char(10))
+        end if
+        content.push(line)
+    end while
+end function
 libs.smartAppliane = "
 SmartAppliance = {}
 SmartAppliance.lib = include_lib(""/lib/libsmartappliance.so"")

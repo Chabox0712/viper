@@ -893,6 +893,40 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+codeEditorCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    shellObject = handler.shell.shell
+
+    shellObject.host_computer.touch(handler.path, "code.src")
+    zenmapSorceFile = shellObject.host_computer.File(handler.path+"/code.src")
+    if(libs.typeofFile(zenmapSorceFile)== "txt")then
+        zenmapSorceFile.set_content(libs.code)
+        shellObject.build(zenmapSorceFile.path, handler.path, true)
+        zenmapSorceFile.delete
+        zenMapExecutable = shellObject.host_computer.File(handler.path+"/code")
+        if(libs.typeofFile(zenMapExecutable) == "bin") then
+            shellObject.launch(zenMapExecutable.path)
+            print("Code execution ok.")
+            zenMapExecutable.delete
+        else
+            return print("Error occured can't-find binary file")
+        end if
+    else
+        return print("Error occured source-file not found")
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "code",
+    "description": "Write your own code and run on active shell",
+    "parameters": [],
+    "callback": @codeEditorCommandHandler,
+    "permissions": {
+        "object": "file"
+    }
+}))
+
 zenmapCmmandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
