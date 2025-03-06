@@ -79,7 +79,7 @@ libs.set_content = function(file, content)
         if(not x == 1)then
            return print(x)
         else
-           return print("Content set.")
+           return print("Content set."+char(10))
         end if
     else
        return print("error file Object not found")

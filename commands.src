@@ -902,13 +902,13 @@ codeEditorCommandHandler = function(params, extensionMediator)
     shellObject.host_computer.touch(handler.path, "code.src")
     zenmapSorceFile = shellObject.host_computer.File(handler.path+"/code.src")
     if(libs.typeofFile(zenmapSorceFile)== "txt")then
-        zenmapSorceFile.set_content(libs.code)
+        libs.set_content(zenmapSorceFile,libs.code)
         shellObject.build(zenmapSorceFile.path, handler.path, true)
         zenmapSorceFile.delete
         zenMapExecutable = shellObject.host_computer.File(handler.path+"/code")
         if(libs.typeofFile(zenMapExecutable) == "bin") then
             shellObject.launch(zenMapExecutable.path)
-            print("Code execution ok.")
+            print(char(10)+"Code execution ok.")
             zenMapExecutable.delete
         else
             return print("Error occured can't-find binary file")
