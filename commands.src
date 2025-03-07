@@ -4,6 +4,8 @@ import_code("./managers/command/command.src")
 import_code("./managers/session/session.src")
 import_code("./utils/libs.src")
 
+custom = [get_custom_object]
+
 clacCommandHandler = function(params, extensionMediator)
     help = "calc: num sign num2 [eg 2 + 2] + - * / %"
     calc = user_input("Enter : ")
@@ -592,6 +594,37 @@ commandManager.registerCommand(Command.New({
     }
 }))
 
+renameCommandHandler = function(params, extensionMediator)
+    sessionManager = extensionMediator.getExtension("sessionManager")
+    session = sessionManager.currentSession
+    handler = session.handler
+    path = params.path
+    file = handler.getFile(path).file
+    oldName = file.name
+    newName = params.newName
+    complete = file.rename(newName)
+    if(typeof(complete) == "string")then
+        print("error "+ complete)
+    else
+        print(oldName + " ---> " + newName)
+    end if
+end function
+commandManager.registerCommand(Command.New({
+    "name": "rename",
+    "description": "Copy a file or directory",
+    "parameters": [
+        Parameter.New({
+            "name": "path",
+            "required": true
+        }),
+        Parameter.New({
+            "name": "newName",
+            "required": true
+        }),
+    ],
+    "callback": @renameCommandHandler
+}))
+
 cpCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
@@ -897,24 +930,28 @@ codeEditorCommandHandler = function(params, extensionMediator)
     sessionManager = extensionMediator.getExtension("sessionManager")
     session = sessionManager.currentSession
     handler = session.handler
-    shellObject = handler.shell.shell
-
-    shellObject.host_computer.touch(handler.path, "code.src")
-    zenmapSorceFile = shellObject.host_computer.File(handler.path+"/code.src")
-    if(libs.typeofFile(zenmapSorceFile)== "txt")then
-        libs.set_content(zenmapSorceFile,libs.code)
-        shellObject.build(zenmapSorceFile.path, handler.path, true)
-        zenmapSorceFile.delete
-        zenMapExecutable = shellObject.host_computer.File(handler.path+"/code")
-        if(libs.typeofFile(zenMapExecutable) == "bin") then
-            shellObject.launch(zenMapExecutable.path)
-            print(char(10)+"Code execution ok.")
-            zenMapExecutable.delete
+    if(handler.type == "shell")then
+        shellObject = handler.shell.shell
+        shellObject.host_computer.touch(handler.path, "code.src")
+        zenmapSorceFile = shellObject.host_computer.File(handler.path+"/code.src")
+        if(libs.typeofFile(zenmapSorceFile)== "txt")then
+            libs.set_content(zenmapSorceFile,libs.code)
+            shellObject.build(zenmapSorceFile.path, handler.path, true)
+            zenmapSorceFile.delete
+            zenMapExecutable = shellObject.host_computer.File(handler.path+"/code")
+            if(libs.typeofFile(zenMapExecutable) == "bin") then
+                shellObject.launch(zenMapExecutable.path)
+                custom.push(get_custom_object)
+                print(char(10)+"Code execution ok.")
+                zenMapExecutable.delete
+            else
+                return print("Error occured can't-find binary file")
+            end if
         else
-            return print("Error occured can't-find binary file")
+            return print("Error occured source-file not found")
         end if
     else
-        return print("Error occured source-file not found")
+        return print("Only shell can execute")
     end if
 end function
 commandManager.registerCommand(Command.New({
@@ -923,7 +960,7 @@ commandManager.registerCommand(Command.New({
     "parameters": [],
     "callback": @codeEditorCommandHandler,
     "permissions": {
-        "object": "file"
+        "object": "shell"
     }
 }))
 
