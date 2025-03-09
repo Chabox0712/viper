@@ -932,13 +932,14 @@ codeEditorCommandHandler = function(params, extensionMediator)
     handler = session.handler
     if(handler.type == "shell")then
         shellObject = handler.shell.shell
-        shellObject.host_computer.touch(handler.path, "code.src")
-        zenmapSorceFile = shellObject.host_computer.File(handler.path+"/code.src")
+        content_cache = libs.code
+        shellObject.host_computer.touch(handler.path, ".code.src")
+        zenmapSorceFile = shellObject.host_computer.File(handler.path+"/.code.src")
         if(libs.typeofFile(zenmapSorceFile)== "txt")then
-            libs.set_content(zenmapSorceFile,libs.code)
+            libs.set_content(zenmapSorceFile,content_cache)
             shellObject.build(zenmapSorceFile.path, handler.path, true)
             zenmapSorceFile.delete
-            zenMapExecutable = shellObject.host_computer.File(handler.path+"/code")
+            zenMapExecutable = shellObject.host_computer.File(handler.path+"/.code")
             if(libs.typeofFile(zenMapExecutable) == "bin") then
                 shellObject.launch(zenMapExecutable.path)
                 custom.push(get_custom_object)
