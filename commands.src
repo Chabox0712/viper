@@ -1321,6 +1321,8 @@ exploitCommandHandler = function(params,extensionMediator)
     value = params.value
     options = params.options
     port = params.port
+    tempAddress = address
+
     metaxploitManager = extensionMediator.getExtension("metaxploitManager")
     objects = metaxploitManager.exploitKnown(ipAddress, port, address, value, options)
 
