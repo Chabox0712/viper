@@ -1,4 +1,237 @@
 libs = {}
+libs.getRouter = "
+    Error = {}
+    Error.New = function(message)
+        result = new self
+        result.message = message
+        return result
+    end function
+
+    isIterable = function(item)
+        if typeof(item) == ""map"" then return true
+        if typeof(item) == ""list"" then return true
+        return false
+    end function
+
+    forEach = function(list, callback)
+        if typeof(list) == ""map"" then
+            for v in list
+                callback(v)
+            end for
+        end if
+        if typeof(list) == ""list"" then
+            for v in list
+                callback(v)
+            end for
+        end if
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+    end function
+
+    map = function(list, callback)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        if typeof(list) == ""map"" then
+            for item in list
+                k = item.key
+                v = item.value
+                newList[k] = callback(item)
+            end for
+        end if
+        if typeof(list) == ""list"" then
+            for v in list
+                newList.push(callback(v))
+            end for
+        end if
+        return newList
+    end function
+
+    filter = function(list, callback)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        for v in list
+            if callback(v) then
+                newList.push(v)
+            end if
+        end for
+        return newList
+    end function
+
+    find = function(list, callback)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        for v in list
+            if callback(v) then
+                return v
+            end if
+        end for
+        return null
+    end function
+
+    reduce = function(list, callback, initialValue)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        skipFirst = false
+        if initialValue == null then skipFirst = true
+        for v in list
+            if skipFirst then
+                initialValue = v
+                skipFirst = false
+            else
+                initialValue = callback(initialValue, v)
+            end if
+        end for
+        return initialValue
+    end function
+
+    every = function(list, callback)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        for v in list
+            if callback(v) == false then
+                return false
+            end if
+        end for
+        return true
+    end function
+
+    some = function(list, callback)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        for v in list
+            if callback(v) then
+                return true
+            end if
+        end for
+        return false
+    end function
+
+    flat = function(list)
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        for v in list
+            if typeof(v) == ""list"" then
+                l = flat(v)
+                for i in l
+                    newList.push(i)
+                end for
+            else
+                newList.push(v)
+            end if
+        end for
+        return newList
+    end function
+
+    distinct = function(list)
+        if typeof(list) == ""map"" then newList = {}
+        if typeof(list) == ""list"" then newList = []
+        if isIterable(list) == false then return Error.New(""Invalid Type"")
+        if typeof(list) == ""map"" then
+            for item in list
+                k = item.key
+                v = item.value
+                if not newList.hasIndex(k) then
+                    newList[k] = v
+                end if
+            end for
+        end if
+        if typeof(list) == ""list"" then
+            for v in list
+                if newList.indexOf(v) == null then
+                    newList.push(v)
+                end if
+            end for
+        end if
+        return newList
+    end function
+    Router = {}
+    Router.router = null
+    Router.id = function()
+        return self.router.bssid_name()
+    end function
+    Router.name = function()
+        return self.router.essid_name()
+    end function
+    Router.version = function()
+        return self.router.kernel_version()
+    end function
+    Router.ip = function()
+        result = {}
+        result.local = self.router.local_ip()
+        result.public = self.router.public_ip()
+        return result
+    end function
+    Router.devices = function()
+        
+        ips = self.router.devices_lan_ip()
+        router = self.router
+
+        handleGetDevicePorts = function(device)
+            result = {}
+            result.ip = device
+            result.ports = router.device_ports(device)
+            return result
+        end function
+        devicesWithPorts = map(ips, @handleGetDevicePorts)
+
+        forwardedPorts = router.used_ports()
+        handleFindPortInUsedPorts = function(port)
+            handleHasPort = function(usedPort)
+                return usedPort.get_lan_ip == port.local and usedPort.port_number == port.port
+            end function
+            return some(forwardedPorts, @handleHasPort)
+        end function
+
+        getPortInfo = function(port)
+            result = {}
+            result.port = port.port_number
+            result.open = not(port.is_closed)
+            result.local = port.get_lan_ip
+            result.forwarded = handleFindPortInUsedPorts(result)
+            result.type = router.port_info(port).split("" "")[0]
+            result.version = router.port_info(port).split("" "")[1]
+            return result
+        end function
+        handleReduceDevicePorts = function(acc, port)
+            if not acc.hasIndex(port.local) then acc[port.local] = []
+            acc[port.local].push(port)
+            return acc
+        end function
+
+        handleGetPorts = function(device)
+            return device.ports
+        end function
+        handleRemoveDublicates = function(device)
+            return distinct(device.value)
+        end function
+        handleFilterNullPorts = function(port)
+            return port != null
+        end function
+        devices = reduce(map(filter(flat(map(devicesWithPorts, @handleGetPorts)), @handleFilterNullPorts), @getPortInfo), @handleReduceDevicePorts, {})
+        devices = map(devices, @handleRemoveDublicates)
+
+        for ip in ips
+            if not devices.hasIndex(ip) then devices[ip] = []
+        end for
+
+        if not devices.hasIndex(self.ip.local) then devices[self.ip.local] = []
+        devices[self.ip.local].push({""port"": 0, ""open"": true, ""forwarded"": true, ""local"": self.ip.local, ""type"": ""kernel_router"", ""version"": self.version()})
+        return devices
+    end function
+    Router.New = function()
+        //if not(is_valid_ip(ip)) then return Error.New(""Invalid ip"")
+        result = new Router
+        result.router = get_router()
+        if result.router == null then return Error.New(""Invalid ip"")
+        return result
+    end function
+    get_custom_object.router = Router.New()
+    "
 libs.code = function()
     content = ("//Write the code bellow
     print(""By Chabox@"")

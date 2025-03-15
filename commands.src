@@ -1251,7 +1251,7 @@ exploitScanCommandHandler = function(params, extensionMediator)
     address = params.address
     port = params.port
     options = params.options
-
+    tempAddress = address
     metaxploitManager = extensionMediator.getExtension("metaxploitManager")
     objects = metaxploitManager.hack(address, port, options)
 
@@ -1275,7 +1275,12 @@ exploitScanCommandHandler = function(params, extensionMediator)
             return false
         end function
         device = find(devices, @handleFindPort)
-        if device == null then return Error.New("Port is not open/found")
+        
+        if device == null then
+            //return Error.New("Port is not open/found")
+            device = {}
+            if is_lan_ip(tempAddress)then device.key = tempAddress
+        end if
         localIp = device.key
         publicIp = address
         address = {
@@ -1339,7 +1344,11 @@ exploitCommandHandler = function(params,extensionMediator)
             return false
         end function
         device = find(devices, @handleFindPort)
-        if device == null then return Error.New("Port is not open/found")
+        if device == null then
+            //return Error.New("Port is not open/found")
+            device = {}
+            if is_lan_ip(tempAddress)then device.key = tempAddress
+        end if
         localIp = device.key
         publicIp = ipAddress
         ipAddress = {
