@@ -129,9 +129,11 @@ libs.ftpCode = "
 
     if get_custom_object.hasIndex(""passwords"") and password == ""dict"" then
         passwords = get_custom_object.passwords
-        for pass in passwords 
+        for pass in passwords
+            print((""Trying Dictionary Attack!"" + char(10) + ""<b>Warning ftp attacks can be slower </b>"" + char(10) + username + ""@"" + password), true) 
             ftp_shell = get_shell.connect_service(params[1], port, user, pass, ""ftp"")
             if(typeof(ftp_shell) == ""ftpshell"") then break
+            wait(0.01)
         end for
     else
         ftp_shell = get_shell.connect_service(params[1], port, user, password, ""ftp"")
