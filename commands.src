@@ -1052,11 +1052,11 @@ sshCommandHandler = function(params, extensionMediator)
         dictionaryManager = extensionMediator.getExtension("dictionaryManager")
         password = dictionaryManager.get()
         while not password isa Error
-            print(("Trying Dictionary Attack!" + char(10) + "<b>Warning ssh attacks can be slower </b>" + char(10) + username + "@" + password), true)
             result = handler.connectTo(ip, port, username, password, service)
+            print(("Trying Dictionary Attack!" + char(10) + char(10) + "<b>Warning ssh attacks can be slower </b>" + char(10) + char(10) + username + "@" + password), true)
+            wait(0.01)
             if typeof(result)=="shell" then print("Password found "+username+"@"+password+".")
             if not result isa Error then break
-            wait(0.01)
             password = dictionaryManager.get()
         end while
     else
