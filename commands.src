@@ -3,7 +3,7 @@ import_code("./utils/random-ip.src")
 import_code("./managers/command/command.src")
 import_code("./managers/session/session.src")
 import_code("./utils/libs.src")
-
+//check
 custom = [get_custom_object]
 
 clacCommandHandler = function(params, extensionMediator)
